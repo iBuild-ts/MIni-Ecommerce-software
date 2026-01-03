@@ -1,0 +1,195 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User = admin users for the store
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String?
+  role         UserRole @default(ADMIN)
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+enum UserRole {
+  ADMIN
+  SUPER_ADMIN
+}
+
+model Product {
+  id            String         @id @default(cuid())
+  name          String
+  slug          String         @unique
+  description   String
+  priceCents    Int
+  currency      String         @default("usd")
+  isActive      Boolean        @default(true)
+  stock         Int            @default(0)
+  sku           String?        @unique
+  mainImageUrl  String?
+  galleryImages ProductImage[]
+  videoUrl      String?
+  tags          String[]
+  category      String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  orderItems    OrderItem[]
+  inventoryLogs InventoryLog[]
+}
+
+model ProductImage {
+  id        String  @id @default(cuid())
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String
+  url       String
+  alt       String?
+  sortOrder Int     @default(0)
+}
+
+model Customer {
+  id              String           @id @default(cuid())
+  email           String           @unique
+  firstName       String?
+  lastName        String?
+  phone           String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  orders          Order[]
+  newsletterOptIn Boolean          @default(false)
+  marketingTags   String[]
+  aiConversations AIConversation[]
+  bookings        Booking[]
+}
+
+model Order {
+  id                  String      @id @default(cuid())
+  orderNumber         Int         @unique @default(autoincrement())
+  customer            Customer?   @relation(fields: [customerId], references: [id])
+  customerId          String?
+  status              OrderStatus @default(PENDING)
+  items               OrderItem[]
+  subtotalCents       Int
+  totalCents          Int
+  currency            String      @default("usd")
+  stripePaymentIntent String?     @unique
+  isPaid              Boolean     @default(false)
+  paymentMethod       String?
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+  shippingAddress     Json?
+  billingAddress      Json?
+  notes               String?
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  PROCESSING
+  SHIPPED
+  COMPLETED
+  CANCELLED
+  REFUNDED
+}
+
+model OrderItem {
+  id             String  @id @default(cuid())
+  order          Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId        String
+  product        Product @relation(fields: [productId], references: [id])
+  productId      String
+  productName    String
+  quantity       Int
+  unitPriceCents Int
+  totalCents     Int
+}
+
+model Lead {
+  id        String   @id @default(cuid())
+  email     String
+  name      String?
+  phone     String?
+  source    String?
+  tags      String[]
+  createdAt DateTime @default(now())
+  notes     String?
+}
+
+model EmailCampaign {
+  id            String         @id @default(cuid())
+  name          String
+  subject       String
+  bodyHtml      String
+  segmentFilter Json
+  scheduledAt   DateTime?
+  status        CampaignStatus @default(DRAFT)
+  sentAt        DateTime?
+  openCount     Int            @default(0)
+  clickCount    Int            @default(0)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+enum CampaignStatus {
+  DRAFT
+  SCHEDULED
+  SENDING
+  SENT
+}
+
+model InventoryLog {
+  id        String   @id @default(cuid())
+  product   Product  @relation(fields: [productId], references: [id])
+  productId String
+  change    Int
+  reason    String
+  createdAt DateTime @default(now())
+}
+
+model Booking {
+  id           String        @id @default(cuid())
+  customer     Customer?     @relation(fields: [customerId], references: [id])
+  customerId   String?
+  email        String
+  name         String?
+  phone        String?
+  status       BookingStatus @default(PENDING)
+  scheduledFor DateTime
+  duration     Int           @default(60)
+  service      String?
+  source       String
+  notes        String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+  NO_SHOW
+}
+
+model AIConversation {
+  id         String    @id @default(cuid())
+  customer   Customer? @relation(fields: [customerId], references: [id])
+  customerId String?
+  sessionId  String    @unique
+  messages   Json
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+model Settings {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     Json
+  updatedAt DateTime @updatedAt
+}
