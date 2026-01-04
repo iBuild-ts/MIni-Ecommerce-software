@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, formatPrice } from '@myglambeauty/ui';
 import {
   DollarSign,
@@ -184,15 +185,16 @@ export default function DashboardPage() {
           { label: 'Add Product', icon: Package, href: '/products/new' },
           { label: 'View Orders', icon: ShoppingCart, href: '/orders' },
           { label: 'Manage Bookings', icon: Calendar, href: '/bookings' },
-          { label: 'Send Campaign', icon: DollarSign, href: '/campaigns/new' },
+          { label: 'Send Campaign', icon: DollarSign, href: '/campaigns' },
         ].map((action) => (
-          <button
+          <Link
             key={action.label}
+            href={action.href}
             className="flex items-center gap-3 p-4 bg-white rounded-xl border border-gray-200 hover:border-brand-500 hover:shadow-md transition-all"
           >
             <action.icon className="h-5 w-5 text-brand-500" />
             <span className="text-sm font-medium">{action.label}</span>
-          </button>
+          </Link>
         ))}
       </div>
     </div>
