@@ -4,6 +4,8 @@
 
 A modern, scalable SaaS-style ecommerce platform built with Next.js, Express, Stripe, Postgres, and AI-powered customer assistance.
 
+**Last Updated:** January 4, 2026 - Dashboard buttons fix applied
+
 ## 🏗️ Architecture
 
 ```
