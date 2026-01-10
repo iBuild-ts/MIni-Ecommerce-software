@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Express } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import { env } from './config/env';
@@ -20,7 +20,7 @@ import { advancedAnalyticsRoutes } from './modules/analytics/advanced-analytics.
 import { notificationRoutes } from './modules/notifications/notification.routes';
 import { handleStripeWebhook } from './modules/orders/order.webhooks';
 
-const app = express();
+const app: Express = express();
 
 // Stripe webhook needs raw body
 app.post('/webhooks/stripe', express.raw({ type: 'application/json' }), handleStripeWebhook);

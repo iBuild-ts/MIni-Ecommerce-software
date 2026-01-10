@@ -1,7 +1,7 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { AdvancedAnalyticsController } from './advanced-analytics.controller';
 
-const router = Router();
+const router: Router = Router();
 const advancedAnalyticsController = new AdvancedAnalyticsController();
 
 // Comprehensive metrics

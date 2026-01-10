@@ -1,5 +1,5 @@
 import { prisma } from '@myglambeauty/db';
-import { memoryCache } from '../services/cache.service';
+import { memoryCache } from '../../services/cache.service';
 
 interface AnalyticsMetrics {
   revenue: {

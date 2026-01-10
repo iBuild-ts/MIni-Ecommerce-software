@@ -79,8 +79,8 @@ class RateLimiter {
       });
 
       // Handle response based on config
-      const originalSend = res.send;
-      res.send = function(this: Response, ...args: any[]) {
+      const originalSend = res.send.bind(res);
+      res.send = function(...args: any[]): Response {
         const statusCode = this.statusCode;
         
         // Skip counting based on config
@@ -89,8 +89,8 @@ class RateLimiter {
           record.count--;
         }
         
-        return originalSend.apply(this, args);
-      }.bind(res);
+        return originalSend(...args);
+      }.bind(this);
 
       next();
     };

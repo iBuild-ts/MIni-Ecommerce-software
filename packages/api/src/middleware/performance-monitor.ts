@@ -24,8 +24,8 @@ class PerformanceMonitor {
       res.setHeader('X-Request-ID', requestId);
 
       // Override res.end to capture response time
-      const originalEnd = res.end;
-      res.end = function(this: Response, ...args: any[]) {
+      const originalEnd = res.end.bind(res);
+      res.end = function(...args: any[]): Response {
         const endTime = Date.now();
         const responseTime = endTime - startTime;
 
@@ -49,8 +49,8 @@ class PerformanceMonitor {
         }
 
         // Call original end
-        originalEnd.apply(this, args);
-      }.bind(res);
+        return originalEnd(...args);
+      }.bind(this);
 
       next();
     };
