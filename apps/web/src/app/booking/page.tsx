@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Calendar, Clock, User, Mail, Phone, Sparkles, Check, ArrowRight, AlertCircle } from 'lucide-react';
 import { Button, Input } from '@myglambeauty/ui';
 import { api } from '@/lib/api';
+import PaymentModal from '@/components/payment/payment-modal';
 
 const services = [
   // FALL IN LOVE WITH HAIR SPECIALS
@@ -387,7 +388,7 @@ export default function BookingPage() {
   const [step, setStep] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedService, setSelectedService] = useState<any>(null);
-  const [selectedDate, setSelectedDate] = useState<string>('');
+  const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [formData, setFormData] = useState({ 
     name: '', 
@@ -398,6 +399,8 @@ export default function BookingPage() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [createdBooking, setCreatedBooking] = useState<any>(null);
 
   const filteredServices = selectedCategory === 'all' 
     ? services 
@@ -418,16 +421,22 @@ export default function BookingPage() {
       };
 
       // Send to API
-      const createdBooking = await api.bookings.create(bookingData);
-      console.log('Booking created successfully:', createdBooking);
+      const createdBookingResponse = await api.bookings.create(bookingData);
+      console.log('Booking created successfully:', createdBookingResponse);
       
-      setIsComplete(true);
+      setCreatedBooking(createdBookingResponse);
+      setShowPaymentModal(true);
     } catch (error) {
       console.error('Booking failed:', error);
       alert('Booking failed: ' + (error as Error).message);
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handlePaymentSuccess = () => {
+    setIsComplete(true);
+    setShowPaymentModal(false);
   };
 
   const canProceed = () => {
@@ -743,6 +752,22 @@ export default function BookingPage() {
           </div>
         </motion.div>
       </div>
+
+      {/* Payment Modal */}
+      {createdBooking && (
+        <PaymentModal
+          isOpen={showPaymentModal}
+          onClose={() => setShowPaymentModal(false)}
+          bookingData={{
+            id: createdBooking.id,
+            service: createdBooking.service,
+            customer: createdBooking.customer,
+            date: createdBooking.date,
+            time: createdBooking.time,
+          }}
+          onSuccess={handlePaymentSuccess}
+        />
+      )}
     </div>
   );
 }

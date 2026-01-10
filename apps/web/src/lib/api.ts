@@ -109,6 +109,30 @@ export const api = {
         body: JSON.stringify(data),
       }),
   },
+  payments: {
+    createDepositPayment: (data: {
+      bookingId: string;
+      customerEmail: string;
+      customerName: string;
+      serviceName: string;
+      depositAmount: number;
+    }) =>
+      fetchAPI<{ clientSecret: string; paymentIntentId: string }>('/api/payments/deposit', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+    createFullPayment: (data: {
+      bookingId: string;
+      customerEmail: string;
+      customerName: string;
+      serviceName: string;
+      fullAmount: number;
+    }) =>
+      fetchAPI<{ clientSecret: string; paymentIntentId: string }>('/api/payments/full', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+  },
   chat: {
     send: (message: string, sessionId?: string) =>
       fetchAPI<{ response: string; sessionId: string }>(
