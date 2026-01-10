@@ -157,6 +157,11 @@ export class SimpleProductController {
           tags: req.body.tags ? JSON.parse(req.body.tags) : [],
         };
         
+        // Automatically add 'bestseller' tag to new products
+        if (!productData.tags.includes('bestseller')) {
+          productData.tags.push('bestseller');
+        }
+        
         // Generate slug from name if not provided
         if (!productData.slug) {
           productData.slug = productData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
@@ -177,6 +182,13 @@ export class SimpleProductController {
         // Generate slug if not provided
         if (!productData.slug) {
           productData.slug = productData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        }
+        
+        // Automatically add 'bestseller' tag to new products
+        if (!productData.tags) {
+          productData.tags = ['bestseller'];
+        } else if (!productData.tags.includes('bestseller')) {
+          productData.tags.push('bestseller');
         }
       }
 

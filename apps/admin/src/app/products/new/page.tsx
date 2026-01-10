@@ -24,12 +24,47 @@ export default function NewProductPage() {
   const [newTag, setNewTag] = useState('');
 
   const handleSave = async () => {
+    if (!formData.name || !formData.priceCents) {
+      alert('Please fill in all required fields');
+      return;
+    }
+
     setIsSaving(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    setIsSaving(false);
-    alert('Product created successfully!');
-    router.push('/products');
+    try {
+      // Create FormData for file upload
+      const productData = new FormData();
+      productData.append('name', formData.name);
+      productData.append('sku', formData.sku);
+      productData.append('description', formData.description);
+      productData.append('priceCents', Math.round(parseFloat(formData.priceCents) * 100).toString());
+      productData.append('compareAtPriceCents', formData.compareAtPriceCents ? Math.round(parseFloat(formData.compareAtPriceCents) * 100).toString() : '');
+      productData.append('category', formData.category);
+      productData.append('status', formData.status);
+      productData.append('stock', formData.stock);
+      productData.append('tags', JSON.stringify(formData.tags));
+      
+      // Add images
+      formData.images.forEach((image, index) => {
+        productData.append('images', image);
+      });
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/products`, {
+        method: 'POST',
+        body: productData,
+      });
+
+      if (response.ok) {
+        alert('Product created successfully!');
+        router.push('/products');
+      } else {
+        throw new Error('Failed to create product');
+      }
+    } catch (error) {
+      console.error('Error creating product:', error);
+      alert('Failed to create product. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {

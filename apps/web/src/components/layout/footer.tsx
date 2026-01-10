@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { Instagram, Facebook, Twitter, Mail, Phone, MapPin } from 'lucide-react';
 
 export function Footer() {
@@ -37,9 +38,17 @@ export function Footer() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
             {/* Brand */}
             <div>
-              <h4 className="font-display text-2xl font-bold mb-4 bg-gradient-to-r from-brand-400 to-gold-400 bg-clip-text text-transparent">
-                MYGlamBeauty
-              </h4>
+              <div className="mb-4">
+                <div className="relative w-[70px] h-[70px] rounded-[70%] overflow-hidden">
+                  <Image
+                    src="https://image2url.com/r2/bucket3/images/1767997771278-7a3bc034-fad1-4f13-bd1e-48c88bf1c8a5.jpg"
+                    alt="MYGlamBeauty Logo"
+                    fill
+                    className="object-cover"
+                    priority
+                  />
+                </div>
+              </div>
               <p className="text-gray-400 mb-4">
                 Home of luxury beauty and handmade lashes for Queen Princess. Elevate your glam with our premium collection.
               </p>

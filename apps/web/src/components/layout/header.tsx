@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, ShoppingBag, User, Search, Heart, LogOut } from 'lucide-react';
 import { useCartStore } from '@/lib/store';
@@ -42,9 +43,15 @@ export function Header() {
 
           {/* Logo */}
           <Link href="/" className="flex items-center">
-            <span className="font-display text-xl lg:text-2xl font-bold gradient-text">
-              MYGlamBeauty
-            </span>
+            <div className="relative w-[70px] h-[70px] rounded-[70%] overflow-hidden">
+              <Image
+                src="https://image2url.com/r2/bucket3/images/1767997771278-7a3bc034-fad1-4f13-bd1e-48c88bf1c8a5.jpg"
+                alt="MYGlamBeauty Logo"
+                fill
+                className="object-cover"
+                priority
+              />
+            </div>
           </Link>
 
           {/* Desktop Navigation */}

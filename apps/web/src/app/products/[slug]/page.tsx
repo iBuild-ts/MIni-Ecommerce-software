@@ -1,38 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Heart, ShoppingBag, Star, Truck, Shield, RotateCcw, Minus, Plus, Check } from 'lucide-react';
 import { Button, Badge, formatPrice } from '@myglambeauty/ui';
 import { useCartStore } from '@/lib/store';
-
-const demoProduct = {
-  id: '1',
-  name: 'Queen Mink Lashes',
-  slug: 'queen-mink-lashes',
-  description: 'Experience luxury with our signature Queen Mink Lashes. These premium 3D mink lashes are handcrafted to perfection, offering a natural yet glamorous look that lasts all day. Each pair is lightweight, comfortable, and reusable up to 25 times with proper care.',
-  priceCents: 2499,
-  compareAtPriceCents: 3499,
-  mainImageUrl: 'https://images.unsplash.com/photo-1583001931096-959e9a1a6223?w=800',
-  galleryImages: [
-    { id: '1', url: 'https://images.unsplash.com/photo-1583001931096-959e9a1a6223?w=800', alt: 'Queen Mink Lashes front' },
-    { id: '2', url: 'https://images.unsplash.com/photo-1597225244660-1cd128c64284?w=800', alt: 'Queen Mink Lashes side' },
-    { id: '3', url: 'https://images.unsplash.com/photo-1512207846876-bb54ef5056fe?w=800', alt: 'Queen Mink Lashes detail' },
-  ],
-  tags: ['bestseller', 'mink', 'luxury'],
-  category: 'Lashes',
-  stock: 150,
-  features: [
-    '100% Siberian Mink fur',
-    'Handcrafted with precision',
-    'Reusable up to 25 times',
-    'Lightweight and comfortable',
-    'Natural-looking volume',
-    'Cruelty-free sourced',
-  ],
-};
+import { api } from '@/lib/api';
 
 const reviews = [
   { id: 1, name: 'Sarah J.', rating: 5, comment: 'These lashes are absolutely stunning! So lightweight and natural-looking.', date: '2024-01-10' },
@@ -41,12 +16,54 @@ const reviews = [
 ];
 
 export default function ProductDetailPage({ params }: { params: { slug: string } }) {
+  const [product, setProduct] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [isAdded, setIsAdded] = useState(false);
   const addItem = useCartStore((state) => state.addItem);
 
-  const product = demoProduct; // In production, fetch by params.slug
+  // Fetch product by slug
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const response = await api.products.getBySlug(params.slug);
+        // Transform API product to match expected type with all required properties
+        const transformedProduct = {
+          id: response.id,
+          name: response.name,
+          slug: response.slug,
+          description: response.description || 'Beautiful product from our collection',
+          priceCents: response.priceCents,
+          compareAtPriceCents: (response as any).compareAtPriceCents || null,
+          mainImageUrl: response.mainImageUrl || 'https://images.unsplash.com/photo-1583001931096-959e9a1a6223?w=800',
+          galleryImages: (response as any).galleryImages?.map((img: any) => ({
+            id: img.id,
+            url: img.url,
+            alt: img.alt || img.name || 'Product image'
+          })) || [
+            { id: '1', url: response.mainImageUrl || 'https://images.unsplash.com/photo-1583001931096-959e9a1a6223?w=800', alt: response.name }
+          ],
+          tags: response.tags || [],
+          category: response.category || 'Uncategorized',
+          stock: response.stock || 0,
+          features: (response as any).features || [
+            'High quality materials',
+            'Carefully crafted',
+            'Beautiful design'
+          ]
+        };
+        setProduct(transformedProduct);
+      } catch (error) {
+        console.error('Failed to fetch product:', error);
+        // Keep null state if product not found
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProduct();
+  }, [params.slug]);
 
   const handleAddToCart = () => {
     for (let i = 0; i < quantity; i++) {
@@ -62,9 +79,31 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
     setTimeout(() => setIsAdded(false), 2000);
   };
 
-  const discount = product.compareAtPriceCents
+  const discount = product?.compareAtPriceCents
     ? Math.round((1 - product.priceCents / product.compareAtPriceCents) * 100)
     : 0;
+
+  if (isLoading) {
+    return (
+      <div className="pt-20 pb-20 min-h-screen flex items-center justify-center">
+        <div className="text-gray-500">Loading product...</div>
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="pt-20 pb-20 min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Product Not Found</h1>
+          <p className="text-gray-500 mb-8">The product you're looking for doesn't exist.</p>
+          <Link href="/products">
+            <Button>Back to Products</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="pt-20 pb-20 min-h-screen">

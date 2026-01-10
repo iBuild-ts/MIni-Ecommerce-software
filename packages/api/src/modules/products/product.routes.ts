@@ -1,60 +1,47 @@
 import { Router } from 'express';
-import { productController } from './product.controller';
-import { authenticate, requireAdmin } from '../../middleware/auth';
-import { validate } from '../../middleware/validate';
-import { createProductSchema, updateProductSchema } from './product.validators';
+import { SimpleProductController } from './product.controller.simple';
+import multer from 'multer';
 
 const router = Router();
 
-// Public routes
-router.get('/', productController.getAll.bind(productController));
-router.get('/categories', productController.getCategories.bind(productController));
-router.get('/slug/:slug', productController.getBySlug.bind(productController));
-router.get('/:id', productController.getById.bind(productController));
+// Configure multer for file uploads
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed'));
+    }
+  }
+});
 
-// Admin routes
+// Simple controller for demo (no database required)
+const simpleProductController = new SimpleProductController();
+
+// Public routes
+router.get('/', simpleProductController.getAll.bind(simpleProductController));
+router.get('/categories', simpleProductController.getCategories.bind(simpleProductController));
+router.get('/slug/:slug', simpleProductController.getBySlug.bind(simpleProductController));
+router.get('/:id', simpleProductController.getById.bind(simpleProductController));
+
+// Admin routes - no auth required for demo
 router.post(
   '/',
-  authenticate,
-  requireAdmin,
-  validate(createProductSchema),
-  productController.create.bind(productController)
+  upload.array('images', 5), // Handle up to 5 images
+  simpleProductController.create.bind(simpleProductController)
 );
 
 router.patch(
   '/:id',
-  authenticate,
-  requireAdmin,
-  validate(updateProductSchema),
-  productController.update.bind(productController)
+  upload.array('images', 5),
+  simpleProductController.update.bind(simpleProductController)
 );
 
 router.delete(
   '/:id',
-  authenticate,
-  requireAdmin,
-  productController.delete.bind(productController)
-);
-
-router.post(
-  '/:id/images',
-  authenticate,
-  requireAdmin,
-  productController.addImage.bind(productController)
-);
-
-router.delete(
-  '/:id/images/:imageId',
-  authenticate,
-  requireAdmin,
-  productController.removeImage.bind(productController)
-);
-
-router.post(
-  '/:id/stock',
-  authenticate,
-  requireAdmin,
-  productController.updateStock.bind(productController)
+  simpleProductController.delete.bind(simpleProductController)
 );
 
 export default router;

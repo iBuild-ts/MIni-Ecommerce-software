@@ -5,108 +5,69 @@ import { motion } from 'framer-motion';
 import { Search, SlidersHorizontal, X } from 'lucide-react';
 import { ProductCard } from '@/components/product/product-card';
 import { Button } from '@myglambeauty/ui';
-
-const demoProducts = [
-  {
-    id: '1',
-    name: 'Queen Mink Lashes',
-    slug: 'queen-mink-lashes',
-    priceCents: 2499,
-    mainImageUrl: 'https://images.unsplash.com/photo-1583001931096-959e9a1a6223?w=800',
-    tags: ['bestseller', 'mink'],
-    category: 'Lashes',
-  },
-  {
-    id: '2',
-    name: 'Princess Faux Mink Set',
-    slug: 'princess-faux-mink-set',
-    priceCents: 3499,
-    mainImageUrl: 'https://images.unsplash.com/photo-1597225244660-1cd128c64284?w=800',
-    tags: ['new', 'faux-mink'],
-    category: 'Lashes',
-  },
-  {
-    id: '3',
-    name: 'Natural Beauty Lashes',
-    slug: 'natural-beauty-lashes',
-    priceCents: 1499,
-    mainImageUrl: 'https://images.unsplash.com/photo-1512207846876-bb54ef5056fe?w=800',
-    tags: ['natural'],
-    category: 'Lashes',
-  },
-  {
-    id: '4',
-    name: 'Drama Queen Volume Lashes',
-    slug: 'drama-queen-volume-lashes',
-    priceCents: 2999,
-    mainImageUrl: 'https://images.unsplash.com/photo-1588495752527-77d73a9a0b75?w=800',
-    tags: ['popular', 'dramatic'],
-    category: 'Lashes',
-  },
-  {
-    id: '5',
-    name: 'Magnetic Lash Kit',
-    slug: 'magnetic-lash-kit',
-    priceCents: 3999,
-    mainImageUrl: 'https://images.unsplash.com/photo-1631214524020-7e18db9a8f92?w=800',
-    tags: ['magnetic', 'kit'],
-    category: 'Lashes',
-  },
-  {
-    id: '6',
-    name: 'Lash Adhesive - Strong Hold',
-    slug: 'lash-adhesive-strong-hold',
-    priceCents: 899,
-    mainImageUrl: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=800',
-    tags: ['essential'],
-    category: 'Accessories',
-  },
-  {
-    id: '7',
-    name: 'Lash Applicator Tool',
-    slug: 'lash-applicator-tool',
-    priceCents: 1299,
-    mainImageUrl: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800',
-    tags: ['tool'],
-    category: 'Accessories',
-  },
-  {
-    id: '8',
-    name: 'Luxury Lash Storage Case',
-    slug: 'luxury-lash-storage-case',
-    priceCents: 1999,
-    mainImageUrl: 'https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=800',
-    tags: ['storage'],
-    category: 'Accessories',
-  },
-];
+import { api } from '@/lib/api';
 
 const categories = ['All', 'Lashes', 'Accessories'];
 
 export default function ProductsPage() {
-  const [products, setProducts] = useState(demoProducts);
+  const [allProducts, setAllProducts] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
 
+  // Fetch products from API on mount
   useEffect(() => {
-    let filtered = demoProducts;
+    const fetchProducts = async () => {
+      setIsLoading(true);
+      try {
+        const response = await api.products.getAll();
+        // Transform API products to match frontend expected type
+        const apiProducts = (response.products || []).map(product => ({
+          id: product.id,
+          name: product.name,
+          slug: product.slug,
+          priceCents: product.priceCents,
+          mainImageUrl: product.mainImageUrl || 'https://images.unsplash.com/photo-1583001931096-959e9a1a6223?w=800',
+          tags: product.tags || [],
+          category: product.category || 'Uncategorized'
+        }));
+        
+        setAllProducts(apiProducts);
+        setProducts(apiProducts);
+      } catch (error) {
+        console.error('Failed to fetch products:', error);
+        // Keep empty state if API fails
+        setAllProducts([]);
+        setProducts([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  // Filter products based on category and search
+  useEffect(() => {
+    let filtered = allProducts;
 
     if (selectedCategory !== 'All') {
-      filtered = filtered.filter((p) => p.category === selectedCategory);
+      filtered = filtered.filter((p: any) => p.category === selectedCategory);
     }
 
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(
-        (p) =>
+        (p: any) =>
           p.name.toLowerCase().includes(query) ||
-          p.tags.some((t) => t.toLowerCase().includes(query))
+          p.tags.some((t: string) => t.toLowerCase().includes(query))
       );
     }
 
     setProducts(filtered);
-  }, [selectedCategory, searchQuery]);
+  }, [allProducts, selectedCategory, searchQuery]);
 
   return (
     <div className="pt-20 lg:pt-24 pb-20">

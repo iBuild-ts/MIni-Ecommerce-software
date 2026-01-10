@@ -57,19 +57,32 @@ export const api = {
   },
   bookings: {
     create: (data: {
-      email: string;
-      name?: string;
-      phone?: string;
-      scheduledFor: string;
-      service?: string;
-      source: string;
+      service: {
+        id: string;
+        name: string;
+        duration: string;
+        price: string;
+        category?: string;
+        description?: string;
+        deposit?: string;
+        paymentInfo?: string;
+      };
+      date: string;
+      time: string;
+      customer: {
+        name: string;
+        email: string;
+        phone: string;
+        notes?: string;
+        agreeToTerms: boolean;
+      };
     }) =>
       fetchAPI('/api/bookings', {
         method: 'POST',
         body: JSON.stringify(data),
       }),
     getSlots: (date: string) =>
-      fetchAPI<Date[]>(`/api/bookings/slots?date=${date}`),
+      fetchAPI<string[]>(`/api/bookings/slots?date=${date}`),
   },
   checkout: {
     create: (data: {

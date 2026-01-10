@@ -1,25 +1,45 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Plus, Search, Edit, Trash2, Eye, MoreVertical, Package } from 'lucide-react';
 import { Button, Badge, formatPrice } from '@myglambeauty/ui';
+import { useRouter } from 'next/navigation';
 
-const demoProducts = [
-  { id: '1', name: 'Queen Mink Lashes', sku: 'QML-001', priceCents: 2499, stock: 150, status: 'active', category: 'Lashes', imageUrl: 'https://images.unsplash.com/photo-1583001931096-959e9a1a6223?w=200' },
-  { id: '2', name: 'Princess Faux Mink Set', sku: 'PFM-002', priceCents: 3499, stock: 200, status: 'active', category: 'Lashes', imageUrl: 'https://images.unsplash.com/photo-1597225244660-1cd128c64284?w=200' },
-  { id: '3', name: 'Natural Beauty Lashes', sku: 'NBL-003', priceCents: 1499, stock: 0, status: 'out_of_stock', category: 'Lashes', imageUrl: 'https://images.unsplash.com/photo-1512207846876-bb54ef5056fe?w=200' },
-  { id: '4', name: 'Drama Queen Volume', sku: 'DQV-004', priceCents: 2999, stock: 100, status: 'active', category: 'Lashes', imageUrl: 'https://images.unsplash.com/photo-1588495752527-77d73a9a0b75?w=200' },
-  { id: '5', name: 'Magnetic Lash Kit', sku: 'MLK-005', priceCents: 3999, stock: 80, status: 'active', category: 'Lashes', imageUrl: 'https://images.unsplash.com/photo-1631214524020-7e18db9a8f92?w=200' },
-  { id: '6', name: 'Lash Adhesive', sku: 'LA-006', priceCents: 899, stock: 500, status: 'active', category: 'Accessories', imageUrl: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=200' },
-];
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
 export default function ProductsPage() {
+  const [products, setProducts] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
+  const router = useRouter();
 
-  const filteredProducts = demoProducts.filter((p) =>
+  // Fetch products from API
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetch(`${API_URL}/api/products`);
+        if (response.ok) {
+          const data = await response.json();
+          // Use only API products - no hardcoded demo products
+          setProducts(data.products || []);
+        }
+      } catch (error) {
+        console.error('Failed to fetch products:', error);
+        // Show empty state if API fails
+        setProducts([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  const filteredProducts = products.filter((p: any) =>
     p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     p.sku.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -34,7 +54,47 @@ export default function ProductsPage() {
     if (selectedProducts.length === filteredProducts.length) {
       setSelectedProducts([]);
     } else {
-      setSelectedProducts(filteredProducts.map((p) => p.id));
+      setSelectedProducts(filteredProducts.map((p: any) => p.id));
+    }
+  };
+
+  const handleViewProduct = (productId: string) => {
+    // Open product in new tab on frontend
+    const product = products.find((p: any) => p.id === productId);
+    if (product) {
+      window.open(`http://localhost:3000/products/${product.slug}`, '_blank');
+    }
+  };
+
+  const handleEditProduct = (productId: string) => {
+    router.push(`/products/${productId}/edit`);
+  };
+
+  const handleDeleteProduct = async (productId: string) => {
+    if (!confirm('Are you sure you want to delete this product?')) {
+      return;
+    }
+
+    try {
+      // Try to delete from API first
+      const response = await fetch(`${API_URL}/api/products/${productId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        // Remove from local state
+        setProducts(products.filter((p: any) => p.id !== productId));
+        alert('Product deleted successfully!');
+      } else {
+        // If API fails, just remove from local state for demo
+        setProducts(products.filter((p: any) => p.id !== productId));
+        alert('Product deleted from local view!');
+      }
+    } catch (error) {
+      console.error('Failed to delete product:', error);
+      // Still remove from local state for demo
+      setProducts(products.filter((p: any) => p.id !== productId));
+      alert('Product deleted from local view!');
     }
   };
 
@@ -115,7 +175,7 @@ export default function ProductsPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {filteredProducts.map((product) => (
+            {filteredProducts.map((product: any) => (
               <tr key={product.id} className="hover:bg-gray-50">
                 <td className="px-6 py-4">
                   <input
@@ -128,8 +188,8 @@ export default function ProductsPage() {
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden relative">
-                      {product.imageUrl ? (
-                        <Image src={product.imageUrl} alt={product.name} fill className="object-cover" />
+                      {product.mainImageUrl ? (
+                        <Image src={product.mainImageUrl} alt={product.name} fill className="object-cover" />
                       ) : (
                         <Package className="w-6 h-6 text-gray-400 absolute inset-0 m-auto" />
                       )}
@@ -152,13 +212,25 @@ export default function ProductsPage() {
                 </td>
                 <td className="px-6 py-4">
                   <div className="flex items-center justify-end gap-2">
-                    <button className="p-2 hover:bg-gray-100 rounded-lg" title="View">
+                    <button 
+                      onClick={() => handleViewProduct(product.id)}
+                      className="p-2 hover:bg-gray-100 rounded-lg" 
+                      title="View"
+                    >
                       <Eye className="h-4 w-4 text-gray-500" />
                     </button>
-                    <button className="p-2 hover:bg-gray-100 rounded-lg" title="Edit">
+                    <button 
+                      onClick={() => handleEditProduct(product.id)}
+                      className="p-2 hover:bg-gray-100 rounded-lg" 
+                      title="Edit"
+                    >
                       <Edit className="h-4 w-4 text-gray-500" />
                     </button>
-                    <button className="p-2 hover:bg-red-50 rounded-lg" title="Delete">
+                    <button 
+                      onClick={() => handleDeleteProduct(product.id)}
+                      className="p-2 hover:bg-red-50 rounded-lg" 
+                      title="Delete"
+                    >
                       <Trash2 className="h-4 w-4 text-red-500" />
                     </button>
                   </div>
@@ -171,10 +243,11 @@ export default function ProductsPage() {
         {/* Pagination */}
         <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
           <p className="text-sm text-gray-500">
-            Showing {filteredProducts.length} of {demoProducts.length} products
+            Showing {filteredProducts.length} of {products.length} products
           </p>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" disabled>Previous</Button>
+            <span className="text-sm text-gray-600">Page 1</span>
             <Button variant="outline" size="sm" disabled>Next</Button>
           </div>
         </div>

@@ -1,17 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-import { Search, Plus, Calendar, Clock, User, Mail, Phone, Check, X } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Search, Plus, Calendar, Clock, User, Mail, Phone, Check, X, AlertCircle } from 'lucide-react';
 import { Button, Badge } from '@myglambeauty/ui';
-
-const demoBookings = [
-  { id: '1', customer: 'Sarah Johnson', email: 'sarah@email.com', phone: '+1 555-0101', service: 'Lash Application', date: '2024-01-20', time: '10:00 AM', status: 'confirmed', notes: '' },
-  { id: '2', customer: 'Michelle Williams', email: 'michelle@email.com', phone: '+1 555-0102', service: 'Lash Consultation', date: '2024-01-20', time: '11:00 AM', status: 'pending', notes: 'First time customer' },
-  { id: '3', customer: 'Jessica Davis', email: 'jessica@email.com', phone: '+1 555-0103', service: 'Lash Application Lesson', date: '2024-01-21', time: '2:00 PM', status: 'confirmed', notes: '' },
-  { id: '4', customer: 'Amanda Brown', email: 'amanda@email.com', phone: '+1 555-0104', service: 'Glam Party Booking', date: '2024-01-22', time: '3:00 PM', status: 'pending', notes: 'Group of 4 people' },
-  { id: '5', customer: 'Emily Wilson', email: 'emily@email.com', phone: '+1 555-0105', service: 'Lash Application', date: '2024-01-19', time: '9:00 AM', status: 'completed', notes: '' },
-  { id: '6', customer: 'Rachel Green', email: 'rachel@email.com', phone: '+1 555-0106', service: 'Lash Consultation', date: '2024-01-18', time: '4:00 PM', status: 'cancelled', notes: 'Rescheduled' },
-];
+import { adminApi, Booking } from '@/lib/api';
 
 const statusConfig: Record<string, { label: string; variant: 'default' | 'success' | 'warning' | 'danger' | 'secondary' }> = {
   pending: { label: 'Pending', variant: 'warning' },
@@ -21,20 +13,86 @@ const statusConfig: Record<string, { label: string; variant: 'default' | 'succes
 };
 
 export default function BookingsPage() {
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [view, setView] = useState<'list' | 'calendar'>('list');
 
-  const filteredBookings = demoBookings.filter((booking) => {
+  useEffect(() => {
+    fetchBookings();
+  }, []);
+
+  const fetchBookings = async () => {
+    try {
+      setLoading(true);
+      const data = await adminApi.bookings.getAll();
+      setBookings(data.data || []);
+    } catch (error) {
+      console.error('Failed to fetch bookings:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateBookingStatus = async (bookingId: string, status: string) => {
+    try {
+      const updatedBooking = await adminApi.bookings.updateStatus(bookingId, status);
+      setBookings(bookings.map(b => b.id === bookingId ? updatedBooking : b));
+    } catch (error) {
+      console.error('Failed to update booking status:', error);
+    }
+  };
+
+  const deleteBooking = async (bookingId: string) => {
+    if (!confirm('Are you sure you want to delete this booking?')) {
+      return;
+    }
+
+    try {
+      await adminApi.bookings.delete(bookingId);
+      setBookings(bookings.filter(b => b.id !== bookingId));
+    } catch (error) {
+      console.error('Failed to delete booking:', error);
+    }
+  };
+
+  const filteredBookings = bookings.filter((booking) => {
     const matchesSearch =
-      booking.customer.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      booking.email.toLowerCase().includes(searchQuery.toLowerCase());
+      booking.customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      booking.customer.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      booking.service.name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === 'all' || booking.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
-  const todayBookings = demoBookings.filter((b) => b.date === '2024-01-20' && b.status !== 'cancelled');
-  const upcomingBookings = demoBookings.filter((b) => b.date > '2024-01-20' && b.status !== 'cancelled');
+  const today = new Date().toISOString().split('T')[0];
+  const todayBookings = bookings.filter((b) => b.date === today && b.status !== 'cancelled');
+  const upcomingBookings = bookings.filter((b) => b.date > today && b.status !== 'cancelled');
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Bookings</h1>
+            <p className="text-gray-500">Manage appointments and consultations</p>
+          </div>
+        </div>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-gray-500">Loading bookings...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -44,9 +102,8 @@ export default function BookingsPage() {
           <h1 className="text-2xl font-bold text-gray-900">Bookings</h1>
           <p className="text-gray-500">Manage appointments and consultations</p>
         </div>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          New Booking
+        <Button onClick={fetchBookings}>
+          Refresh
         </Button>
       </div>
 
@@ -70,10 +127,10 @@ export default function BookingsPage() {
         </div>
         <div className="bg-white rounded-xl p-4 shadow-sm">
           <div className="flex items-center gap-2 text-yellow-500 mb-2">
-            <Clock className="h-5 w-5" />
+            <AlertCircle className="h-5 w-5" />
             <span className="text-sm font-medium">Pending</span>
           </div>
-          <p className="text-2xl font-bold text-gray-900">{demoBookings.filter((b) => b.status === 'pending').length}</p>
+          <p className="text-2xl font-bold text-gray-900">{bookings.filter((b) => b.status === 'pending').length}</p>
           <p className="text-sm text-gray-500">to confirm</p>
         </div>
         <div className="bg-white rounded-xl p-4 shadow-sm">
@@ -81,7 +138,7 @@ export default function BookingsPage() {
             <Check className="h-5 w-5" />
             <span className="text-sm font-medium">Completed</span>
           </div>
-          <p className="text-2xl font-bold text-gray-900">{demoBookings.filter((b) => b.status === 'completed').length}</p>
+          <p className="text-2xl font-bold text-gray-900">{bookings.filter((b) => b.status === 'completed').length}</p>
           <p className="text-sm text-gray-500">this week</p>
         </div>
       </div>
@@ -145,49 +202,81 @@ export default function BookingsPage() {
                 <tr key={booking.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4">
                     <div>
-                      <p className="font-medium text-gray-900">{booking.customer}</p>
+                      <p className="font-medium text-gray-900">{booking.customer.name}</p>
                       <div className="flex items-center gap-3 mt-1 text-sm text-gray-500">
                         <span className="flex items-center gap-1">
                           <Mail className="h-3 w-3" />
-                          {booking.email}
+                          {booking.customer.email}
                         </span>
                         <span className="flex items-center gap-1">
                           <Phone className="h-3 w-3" />
-                          {booking.phone}
+                          {booking.customer.phone}
                         </span>
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-gray-900">{booking.service}</td>
+                  <td className="px-6 py-4">
+                    <div>
+                      <p className="text-gray-900 font-medium">{booking.service.name}</p>
+                      <p className="text-sm text-gray-500">{booking.service.duration} • {booking.service.price}</p>
+                    </div>
+                  </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
                       <Calendar className="h-4 w-4 text-gray-400" />
-                      <span>{booking.date}</span>
+                      <span>{formatDate(booking.date)}</span>
                       <Clock className="h-4 w-4 text-gray-400 ml-2" />
                       <span>{booking.time}</span>
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <Badge variant={status.variant}>{status.label}</Badge>
+                    <div className="flex items-center gap-2">
+                      <Badge variant={status.variant}>{status.label}</Badge>
+                      {booking.depositPaid && (
+                        <Badge variant="success" className="text-xs">Deposit</Badge>
+                      )}
+                    </div>
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-500">
-                    {booking.notes || '-'}
+                    {booking.customer.notes || '-'}
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center justify-end gap-2">
                       {booking.status === 'pending' && (
                         <>
-                          <Button size="sm" variant="outline" className="text-green-600 border-green-200 hover:bg-green-50">
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="text-green-600 border-green-200 hover:bg-green-50"
+                            onClick={() => updateBookingStatus(booking.id, 'confirmed')}
+                          >
                             <Check className="h-4 w-4" />
                           </Button>
-                          <Button size="sm" variant="outline" className="text-red-600 border-red-200 hover:bg-red-50">
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="text-red-600 border-red-200 hover:bg-red-50"
+                            onClick={() => updateBookingStatus(booking.id, 'cancelled')}
+                          >
                             <X className="h-4 w-4" />
                           </Button>
                         </>
                       )}
                       {booking.status === 'confirmed' && (
-                        <Button size="sm">Complete</Button>
+                        <Button 
+                          size="sm"
+                          onClick={() => updateBookingStatus(booking.id, 'completed')}
+                        >
+                          Complete
+                        </Button>
                       )}
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => deleteBooking(booking.id)}
+                      >
+                        Delete
+                      </Button>
                     </div>
                   </td>
                 </tr>
@@ -195,6 +284,12 @@ export default function BookingsPage() {
             })}
           </tbody>
         </table>
+        
+        {filteredBookings.length === 0 && (
+          <div className="text-center py-12">
+            <div className="text-gray-500">No bookings found</div>
+          </div>
+        )}
       </div>
     </div>
   );

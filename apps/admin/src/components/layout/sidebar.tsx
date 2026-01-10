@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
@@ -36,10 +37,18 @@ export function Sidebar() {
     <aside className="w-64 bg-gray-900 text-white flex flex-col">
       {/* Logo */}
       <div className="p-6 border-b border-gray-800">
-        <h1 className="text-xl font-bold bg-gradient-to-r from-brand-400 to-gold-400 bg-clip-text text-transparent">
-          MYGlamBeauty
-        </h1>
-        <p className="text-xs text-gray-400 mt-1">Admin Dashboard</p>
+        <div className="flex items-center gap-3 mb-2">
+          <div className="relative w-[70px] h-[70px] rounded-[70%] overflow-hidden">
+            <Image
+              src="https://image2url.com/r2/bucket3/images/1767997771278-7a3bc034-fad1-4f13-bd1e-48c88bf1c8a5.jpg"
+              alt="MYGlamBeauty Logo"
+              fill
+              className="object-cover"
+              priority
+            />
+          </div>
+        </div>
+        <p className="text-xs text-gray-400">Admin Dashboard</p>
       </div>
 
       {/* Navigation */}
