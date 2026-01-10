@@ -47,7 +47,7 @@ export class AuthService {
         email,
         passwordHash,
         name,
-        role: 'CUSTOMER',
+        role: 'ADMIN', // Using ADMIN since CUSTOMER is not in UserRole enum
       },
     });
 

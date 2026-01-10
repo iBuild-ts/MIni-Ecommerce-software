@@ -32,8 +32,11 @@ export class MockBookingPaymentService {
     console.log('Mock payment success for:', paymentIntentId);
     
     return {
+      success: true,
       bookingId: paymentIntentId.replace('pi_mock_', ''),
       customerEmail: 'test@example.com',
+      customerName: 'Test Customer',
+      serviceName: 'Beauty Service',
       amount: 1000,
       status: 'paid',
     };
