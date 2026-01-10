@@ -74,11 +74,10 @@ export class TestDatabase {
         name: 'Test Product',
         slug: 'test-product',
         description: 'A test product',
-        price: 2999,
+        priceCents: 2999,
         category: 'HAIR',
-        images: ['test-image.jpg'],
-        inStock: true,
-        featured: false,
+        isActive: true,
+        stock: 10,
       },
     });
 
@@ -135,11 +134,10 @@ export class TestDataFactory {
       name: 'Test Product',
       slug: 'test-product',
       description: 'A test product',
-      price: 2999,
+      priceCents: 2999,
       category: 'HAIR',
-      images: ['test-image.jpg'],
-      inStock: true,
-      featured: false,
+      isActive: true,
+      stock: 10,
       ...overrides,
     };
   }
