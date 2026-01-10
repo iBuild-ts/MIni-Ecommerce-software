@@ -80,17 +80,17 @@ class RateLimiter {
 
       // Handle response based on config
       const originalSend = res.send.bind(res);
-      res.send = function(...args: any[]): Response {
+      res.send = function(this: Response, ...args: any[]): Response {
         const statusCode = this.statusCode;
         
         // Skip counting based on config
-        if ((this.config.skipSuccessfulRequests && statusCode < 400) ||
-            (this.config.skipFailedRequests && statusCode >= 400)) {
+        if ((config.skipSuccessfulRequests && statusCode < 400) ||
+            (config.skipFailedRequests && statusCode >= 400)) {
           record.count--;
         }
         
         return originalSend(...args);
-      }.bind(this);
+      };
 
       next();
     };

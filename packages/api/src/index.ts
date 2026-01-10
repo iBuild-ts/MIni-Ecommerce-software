@@ -58,7 +58,7 @@ app.get('/health/detailed', async (req, res) => {
       error: error instanceof Error ? error.message : 'Unknown error',
       timestamp: new Date(),
     });
-  });
+  }
 });
 
 app.get('/ready', async (req, res) => {

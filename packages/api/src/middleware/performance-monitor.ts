@@ -25,7 +25,7 @@ class PerformanceMonitor {
 
       // Override res.end to capture response time
       const originalEnd = res.end.bind(res);
-      res.end = function(...args: any[]): Response {
+      res.end = function(this: Response, ...args: any[]): Response {
         const endTime = Date.now();
         const responseTime = endTime - startTime;
 
@@ -41,7 +41,7 @@ class PerformanceMonitor {
         };
 
         // Store metric
-        this.addMetric(metric);
+        performanceMonitor.addMetric(metric);
 
         // Log slow requests
         if (responseTime > 1000) {
@@ -50,7 +50,7 @@ class PerformanceMonitor {
 
         // Call original end
         return originalEnd(...args);
-      }.bind(this);
+      };
 
       next();
     };
