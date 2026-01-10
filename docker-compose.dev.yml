@@ -1,0 +1,145 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: myglambeauty-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: myglambeauty
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./packages/db/prisma/migrations:/docker-entrypoint-initdb.d
+    networks:
+      - myglambeauty-network
+
+  # Redis for caching
+  redis:
+    image: redis:7-alpine
+    container_name: myglambeauty-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - myglambeauty-network
+
+  # API Service
+  api:
+    build:
+      context: .
+      dockerfile: packages/api/Dockerfile
+    container_name: myglambeauty-api
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/myglambeauty
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: dev-jwt-secret-key
+      STRIPE_SECRET_KEY: sk_test_dev_key
+      STRIPE_WEBHOOK_SECRET: whsec_dev_webhook_secret
+      SMTP_HOST: localhost
+      SMTP_USER: dev
+      SMTP_PASS: dev
+      SMTP_PORT: 1025
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+      NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: pk_test_dev_key
+    ports:
+      - "4000:4000"
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./packages/api:/app
+      - /app/node_modules
+    networks:
+      - myglambeauty-network
+    command: pnpm dev
+
+  # Web App
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    container_name: myglambeauty-web
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+      NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: pk_test_dev_key
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+    volumes:
+      - ./apps/web:/app
+      - /app/node_modules
+      - /app/.next
+    networks:
+      - myglambeauty-network
+    command: pnpm dev
+
+  # Admin App
+  admin:
+    build:
+      context: .
+      dockerfile: apps/admin/Dockerfile
+    container_name: myglambeauty-admin
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+    ports:
+      - "3001:3001"
+    depends_on:
+      - api
+    volumes:
+      - ./apps/admin:/app
+      - /app/node_modules
+      - /app/.next
+    networks:
+      - myglambeauty-network
+    command: pnpm dev
+
+  # MailHog for email testing
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: myglambeauty-mail
+    restart: unless-stopped
+    ports:
+      - "1025:1025"  # SMTP server
+      - "8025:8025"  # Web UI
+    networks:
+      - myglambeauty-network
+
+  # Nginx reverse proxy
+  nginx:
+    image: nginx:alpine
+    container_name: myglambeauty-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/ssl:/etc/nginx/ssl
+    depends_on:
+      - web
+      - admin
+      - api
+    networks:
+      - myglambeauty-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  myglambeauty-network:
+    driver: bridge
