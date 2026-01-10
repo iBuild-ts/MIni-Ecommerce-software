@@ -157,7 +157,6 @@ export function useNotifications(): UseNotificationsReturn {
 }
 
 // Notification context for global state management
-import { createContext, useContext, ReactNode } from 'react';
 
 interface NotificationContextType {
   notifications: Array<{
