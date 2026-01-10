@@ -35,6 +35,20 @@ export interface Product {
 }
 
 export const api = {
+  auth: {
+    login: (email: string, password: string) =>
+      fetchAPI<{ token: string; user: { id: string; email: string; name: string; role: string } }>('/api/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ email, password }),
+      }),
+    register: (email: string, password: string, name?: string) =>
+      fetchAPI<{ token: string; user: { id: string; email: string; name: string; role: string } }>('/api/auth/register', {
+        method: 'POST',
+        body: JSON.stringify({ email, password, name }),
+      }),
+    getProfile: () =>
+      fetchAPI<{ id: string; email: string; name: string; role: string; createdAt: string }>('/api/auth/profile'),
+  },
   products: {
     getAll: (params?: { category?: string; search?: string }) => {
       const searchParams = new URLSearchParams();

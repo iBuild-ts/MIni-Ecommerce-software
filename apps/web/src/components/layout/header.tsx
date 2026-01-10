@@ -1,23 +1,44 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, ShoppingBag, User, Search, Heart, LogOut } from 'lucide-react';
 import { useCartStore } from '@/lib/store';
-import { useAuthStore } from '@/lib/auth';
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  
   const cartItems = useCartStore((state) => state.items);
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-  const { isAuthenticated, user, logout } = useAuthStore();
+
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
+  const checkAuth = () => {
+    const token = localStorage.getItem('token');
+    const userData = localStorage.getItem('user');
+    
+    if (token && userData) {
+      setIsAuthenticated(true);
+      setUser(JSON.parse(userData));
+    } else {
+      setIsAuthenticated(false);
+      setUser(null);
+    }
+  };
 
   const handleLogout = () => {
-    logout();
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setIsAuthenticated(false);
+    setUser(null);
     setIsUserMenuOpen(false);
   };
 
@@ -137,7 +158,7 @@ export function Header() {
                 </div>
               ) : (
                 <Link
-                  href="/account"
+                  href="/login"
                   className="p-2 hover:bg-brand-50 rounded-full transition-colors"
                 >
                   <User className="h-5 w-5 text-gray-700" />
@@ -179,6 +200,15 @@ export function Header() {
                   {link.label}
                 </Link>
               ))}
+              {!isAuthenticated && (
+                <Link
+                  href="/login"
+                  className="block py-2 text-gray-700 hover:text-brand-500 transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Sign In
+                </Link>
+              )}
             </nav>
           </motion.div>
         )}
