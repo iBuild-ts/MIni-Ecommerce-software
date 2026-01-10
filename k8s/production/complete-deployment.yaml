@@ -1,0 +1,511 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: production
+  labels:
+    name: production
+    environment: production
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: myglambeauty-secrets
+  namespace: production
+type: Opaque
+data:
+  # Base64 encoded values
+  database-url: <base64-encoded-database-url>
+  jwt-secret: <base64-encoded-jwt-secret>
+  stripe-secret-key: <base64-encoded-stripe-secret>
+  stripe-webhook-secret: <base64-encoded-stripe-webhook-secret>
+  smtp-user: <base64-encoded-smtp-user>
+  smtp-pass: <base64-encoded-smtp-pass>
+  redis-url: <base64-encoded-redis-url>
+  aws-access-key-id: <base64-encoded-aws-access-key>
+  aws-secret-access-key: <base64-encoded-aws-secret-key>
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: myglambeauty-config
+  namespace: production
+data:
+  NODE_ENV: "production"
+  APP_NAME: "MYGlamBeauty"
+  APP_VERSION: "1.2.0"
+  SMTP_HOST: "smtp.sendgrid.net"
+  SMTP_PORT: "587"
+  SMTP_SECURE: "false"
+  SMTP_FROM: "noreply@myglambeauty.com"
+  AWS_REGION: "us-west-2"
+  AWS_S3_BUCKET: "myglambeauty-prod-assets"
+  NEXT_PUBLIC_API_URL: "https://api.myglambeauty.com"
+  CORS_ORIGIN: "https://myglambeauty.com,https://www.myglambeauty.com"
+  RATE_LIMIT_WINDOW_MS: "900000"
+  RATE_LIMIT_MAX_REQUESTS: "100"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myglambeauty-api
+  namespace: production
+  labels:
+    app: myglambeauty-api
+    version: v1
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: myglambeauty-api
+  template:
+    metadata:
+      labels:
+        app: myglambeauty-api
+        version: v1
+    spec:
+      containers:
+      - name: api
+        image: 123456789012.dkr.ecr.us-west-2.amazonaws.com/myglambeauty-api:latest
+        ports:
+        - containerPort: 4000
+          name: http
+        env:
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: myglambeauty-config
+              key: NODE_ENV
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: myglambeauty-secrets
+              key: database-url
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: myglambeauty-secrets
+              key: redis-url
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: myglambeauty-secrets
+              key: jwt-secret
+        - name: STRIPE_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: myglambeauty-secrets
+              key: stripe-secret-key
+        - name: STRIPE_WEBHOOK_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: myglambeauty-secrets
+              key: stripe-webhook-secret
+        - name: SMTP_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: myglambeauty-config
+              key: SMTP_HOST
+        - name: SMTP_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: myglambeauty-config
+              key: SMTP_PORT
+        - name: SMTP_USER
+          valueFrom:
+            secretKeyRef:
+              name: myglambeauty-secrets
+              key: smtp-user
+        - name: SMTP_PASS
+          valueFrom:
+            secretKeyRef:
+              name: myglambeauty-secrets
+              key: smtp-pass
+        - name: SMTP_FROM
+          valueFrom:
+            configMapKeyRef:
+              name: myglambeauty-config
+              key: SMTP_FROM
+        - name: AWS_REGION
+          valueFrom:
+            configMapKeyRef:
+              name: myglambeauty-config
+              key: AWS_REGION
+        - name: AWS_S3_BUCKET
+          valueFrom:
+            configMapKeyRef:
+              name: myglambeauty-config
+              key: AWS_S3_BUCKET
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: myglambeauty-secrets
+              key: aws-access-key-id
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: myglambeauty-secrets
+              key: aws-secret-access-key
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 4000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 4000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1001
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+      imagePullSecrets:
+      - name: aws-ecr-credentials
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: myglambeauty-api-service
+  namespace: production
+  labels:
+    app: myglambeauty-api
+spec:
+  selector:
+    app: myglambeauty-api
+  ports:
+  - name: http
+    port: 4000
+    targetPort: 4000
+    protocol: TCP
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myglambeauty-web
+  namespace: production
+  labels:
+    app: myglambeauty-web
+    version: v1
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: myglambeauty-web
+  template:
+    metadata:
+      labels:
+        app: myglambeauty-web
+        version: v1
+    spec:
+      containers:
+      - name: web
+        image: 123456789012.dkr.ecr.us-west-2.amazonaws.com/myglambeauty-web:latest
+        ports:
+        - containerPort: 3000
+          name: http
+        env:
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: myglambeauty-config
+              key: NODE_ENV
+        - name: NEXT_PUBLIC_API_URL
+          valueFrom:
+            configMapKeyRef:
+              name: myglambeauty-config
+              key: NEXT_PUBLIC_API_URL
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "250m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1001
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+      imagePullSecrets:
+      - name: aws-ecr-credentials
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: myglambeauty-web-service
+  namespace: production
+  labels:
+    app: myglambeauty-web
+spec:
+  selector:
+    app: myglambeauty-web
+  ports:
+  - name: http
+    port: 3000
+    targetPort: 3000
+    protocol: TCP
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myglambeauty-admin
+  namespace: production
+  labels:
+    app: myglambeauty-admin
+    version: v1
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: myglambeauty-admin
+  template:
+    metadata:
+      labels:
+        app: myglambeauty-admin
+        version: v1
+    spec:
+      containers:
+      - name: admin
+        image: 123456789012.dkr.ecr.us-west-2.amazonaws.com/myglambeauty-admin:latest
+        ports:
+        - containerPort: 3001
+          name: http
+        env:
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: myglambeauty-config
+              key: NODE_ENV
+        - name: NEXT_PUBLIC_API_URL
+          valueFrom:
+            configMapKeyRef:
+              name: myglambeauty-config
+              key: NEXT_PUBLIC_API_URL
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "250m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3001
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 3001
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1001
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+      imagePullSecrets:
+      - name: aws-ecr-credentials
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: myglambeauty-admin-service
+  namespace: production
+  labels:
+    app: myglambeauty-admin
+spec:
+  selector:
+    app: myglambeauty-admin
+  ports:
+  - name: http
+    port: 3001
+    targetPort: 3001
+    protocol: TCP
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: myglambeauty-ingress
+  namespace: production
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "20m"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+spec:
+  tls:
+  - hosts:
+    - myglambeauty.com
+    - www.myglambeauty.com
+    - api.myglambeauty.com
+    - admin.myglambeauty.com
+    secretName: myglambeauty-tls
+  rules:
+  - host: myglambeauty.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: myglambeauty-web-service
+            port:
+              number: 3000
+  - host: www.myglambeauty.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: myglambeauty-web-service
+            port:
+              number: 3000
+  - host: api.myglambeauty.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: myglambeauty-api-service
+            port:
+              number: 4000
+  - host: admin.myglambeauty.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: myglambeauty-admin-service
+            port:
+              number: 3001
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: myglambeauty-api-hpa
+  namespace: production
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: myglambeauty-api
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: myglambeauty-web-hpa
+  namespace: production
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: myglambeauty-web
+  minReplicas: 2
+  maxReplicas: 5
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: myglambeauty-api-pdb
+  namespace: production
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: myglambeauty-api
