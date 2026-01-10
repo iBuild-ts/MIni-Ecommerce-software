@@ -1,295 +1,390 @@
 'use client';
 
-import { useState } from 'react';
-import { BarChart3, TrendingUp, TrendingDown, Users, ShoppingCart, DollarSign, Eye, Calendar, Download } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import {
+  TrendingUp,
+  TrendingDown,
+  DollarSign,
+  Users,
+  Calendar,
+  ShoppingBag,
+  BarChart3,
+  PieChart,
+  Download,
+  Filter,
+  RefreshCw
+} from 'lucide-react';
 import { Button } from '@myglambeauty/ui';
 
-const demoData = {
-  overview: {
-    totalRevenue: 125990,
-    revenueGrowth: 12.5,
-    totalOrders: 847,
-    ordersGrowth: 8.3,
-    totalCustomers: 2341,
-    customersGrowth: 15.2,
-    conversionRate: 3.2,
-    conversionGrowth: 0.5,
-    avgOrderValue: 148.65,
-    aovGrowth: 3.8,
-  },
-  salesChart: [
-    { date: '2024-01-01', revenue: 12500, orders: 85 },
-    { date: '2024-01-02', revenue: 15200, orders: 102 },
-    { date: '2024-01-03', revenue: 18900, orders: 127 },
-    { date: '2024-01-04', revenue: 16800, orders: 113 },
-    { date: '2024-01-05', revenue: 22100, orders: 148 },
-    { date: '2024-01-06', revenue: 19500, orders: 131 },
-    { date: '2024-01-07', revenue: 20990, orders: 141 },
-  ],
-  topProducts: [
-    { name: 'Queen Mink Lashes', revenue: 28990, units: 1160, growth: 15.2 },
-    { name: 'Princess Faux Mink Set', revenue: 24450, units: 699, growth: 8.7 },
-    { name: 'Natural Beauty Lashes', revenue: 18750, units: 1250, growth: -2.3 },
-    { name: 'Drama Queen Volume', revenue: 22100, units: 737, growth: 22.1 },
-    { name: 'Magnetic Lash Kit', revenue: 31700, units: 793, growth: 45.6 },
-  ],
-  trafficSources: [
-    { source: 'Direct', visitors: 3421, percentage: 35.2, conversion: 4.1 },
-    { source: 'Social Media', visitors: 2856, percentage: 29.4, conversion: 3.8 },
-    { source: 'Search', visitors: 1876, percentage: 19.3, conversion: 2.9 },
-    { source: 'Email', visitors: 987, percentage: 10.2, conversion: 6.2 },
-    { source: 'Referral', visitors: 567, percentage: 5.9, conversion: 2.1 },
-  ],
-};
+interface AnalyticsData {
+  revenue: {
+    total: number;
+    growth: number;
+    monthly: Array<{ month: string; revenue: number; bookings: number }>;
+  };
+  bookings: {
+    total: number;
+    growth: number;
+    byStatus: Array<{ status: string; count: number }>;
+    byService: Array<{ service: string; count: number; revenue: number }>;
+  };
+  customers: {
+    total: number;
+    new: number;
+    returning: number;
+    growth: number;
+  };
+  products: {
+    total: number;
+    topSelling: Array<{ name: string; sales: number; revenue: number }>;
+  };
+}
 
 export default function AnalyticsPage() {
-  const [timeRange, setTimeRange] = useState('7d');
-  const [selectedMetric, setSelectedMetric] = useState('revenue');
+  const [data, setData] = useState<AnalyticsData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d' | '1y'>('30d');
 
-  const timeRanges = [
-    { value: '24h', label: 'Last 24 Hours' },
-    { value: '7d', label: 'Last 7 Days' },
-    { value: '30d', label: 'Last 30 Days' },
-    { value: '90d', label: 'Last 90 Days' },
-  ];
+  useEffect(() => {
+    fetchAnalytics();
+  }, [timeRange]);
 
-  const metrics = [
-    { value: 'revenue', label: 'Revenue' },
-    { value: 'orders', label: 'Orders' },
-    { value: 'customers', label: 'Customers' },
-    { value: 'conversion', label: 'Conversion Rate' },
-  ];
+  const fetchAnalytics = async () => {
+    setIsLoading(true);
+    setError(null);
 
-  const formatCurrency = (cents: number) => {
+    try {
+      // Mock analytics data - in real app, this would be an API call
+      const mockData: AnalyticsData = {
+        revenue: {
+          total: 45678,
+          growth: 15.3,
+          monthly: [
+            { month: 'Jan', revenue: 12000, bookings: 45 },
+            { month: 'Feb', revenue: 13500, bookings: 52 },
+            { month: 'Mar', revenue: 14200, bookings: 58 },
+            { month: 'Apr', revenue: 15978, bookings: 67 },
+          ],
+        },
+        bookings: {
+          total: 156,
+          growth: 12.5,
+          byStatus: [
+            { status: 'confirmed', count: 89 },
+            { status: 'pending', count: 23 },
+            { status: 'completed', count: 134 },
+            { status: 'cancelled', count: 12 },
+          ],
+          byService: [
+            { service: 'Sew-in Special', count: 45, revenue: 11250 },
+            { service: 'Lash Lift & Tint', count: 38, revenue: 4560 },
+            { service: 'Deep Conditioning', count: 28, revenue: 2380 },
+            { service: 'Hair Treatment', count: 22, revenue: 1980 },
+          ],
+        },
+        customers: {
+          total: 234,
+          new: 67,
+          returning: 167,
+          growth: 8.2,
+        },
+        products: {
+          total: 89,
+          topSelling: [
+            { name: '16IN LOOSE WAVE Bundle', sales: 45, revenue: 13499 },
+            { name: 'Lash Aftercare Kit', sales: 32, revenue: 14400 },
+            { name: 'Mink Lashes Set', sales: 28, revenue: 8399 },
+            { name: 'Hair Growth Serum', sales: 22, revenue: 6599 },
+          ],
+        },
+      };
+
+      setData(mockData);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch analytics');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
-    }).format(cents / 100);
+    }).format(amount);
   };
 
-  const formatNumber = (num: number) => {
-    return new Intl.NumberFormat('en-US').format(num);
+  const formatPercent = (value: number) => {
+    return `${value > 0 ? '+' : ''}${value.toFixed(1)}%`;
   };
 
-  return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Analytics</h1>
-          <p className="text-gray-500">Track your store performance and insights</p>
-        </div>
-        <div className="flex items-center gap-4">
-          <select
-            value={timeRange}
-            onChange={(e) => setTimeRange(e.target.value)}
-            className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-brand-500"
-          >
-            {timeRanges.map((range) => (
-              <option key={range.value} value={range.value}>
-                {range.label}
-              </option>
-            ))}
-          </select>
-          <Button variant="outline">
-            <Download className="h-4 w-4 mr-2" />
-            Export Report
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-500"></div>
+      </div>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">{error || 'Failed to load analytics'}</p>
+          <Button onClick={fetchAnalytics}>
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Try Again
           </Button>
         </div>
       </div>
+    );
+  }
 
-      {/* Key Metrics */}
-      <div className="grid grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <DollarSign className="h-6 w-6 text-green-600" />
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white shadow-sm border-b">
+        <div className="px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Analytics</h1>
+              <p className="text-sm text-gray-600">Track your business performance and insights</p>
             </div>
-            <div className={`flex items-center gap-1 text-sm ${
-              demoData.overview.revenueGrowth > 0 ? 'text-green-600' : 'text-red-600'
-            }`}>
-              {demoData.overview.revenueGrowth > 0 ? (
-                <TrendingUp className="h-4 w-4" />
-              ) : (
-                <TrendingDown className="h-4 w-4" />
-              )}
-              {Math.abs(demoData.overview.revenueGrowth)}%
-            </div>
-          </div>
-          <h3 className="text-2xl font-bold text-gray-900">
-            {formatCurrency(demoData.overview.totalRevenue)}
-          </h3>
-          <p className="text-sm text-gray-500">Total Revenue</p>
-        </div>
-
-        <div className="bg-white rounded-xl p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <ShoppingCart className="h-6 w-6 text-blue-600" />
-            </div>
-            <div className={`flex items-center gap-1 text-sm ${
-              demoData.overview.ordersGrowth > 0 ? 'text-green-600' : 'text-red-600'
-            }`}>
-              {demoData.overview.ordersGrowth > 0 ? (
-                <TrendingUp className="h-4 w-4" />
-              ) : (
-                <TrendingDown className="h-4 w-4" />
-              )}
-              {Math.abs(demoData.overview.ordersGrowth)}%
-            </div>
-          </div>
-          <h3 className="text-2xl font-bold text-gray-900">
-            {formatNumber(demoData.overview.totalOrders)}
-          </h3>
-          <p className="text-sm text-gray-500">Total Orders</p>
-        </div>
-
-        <div className="bg-white rounded-xl p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-2 bg-purple-100 rounded-lg">
-              <Users className="h-6 w-6 text-purple-600" />
-            </div>
-            <div className={`flex items-center gap-1 text-sm ${
-              demoData.overview.customersGrowth > 0 ? 'text-green-600' : 'text-red-600'
-            }`}>
-              {demoData.overview.customersGrowth > 0 ? (
-                <TrendingUp className="h-4 w-4" />
-              ) : (
-                <TrendingDown className="h-4 w-4" />
-              )}
-              {Math.abs(demoData.overview.customersGrowth)}%
-            </div>
-          </div>
-          <h3 className="text-2xl font-bold text-gray-900">
-            {formatNumber(demoData.overview.totalCustomers)}
-          </h3>
-          <p className="text-sm text-gray-500">Total Customers</p>
-        </div>
-
-        <div className="bg-white rounded-xl p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-2 bg-brand-100 rounded-lg">
-              <BarChart3 className="h-6 w-6 text-brand-600" />
-            </div>
-            <div className={`flex items-center gap-1 text-sm ${
-              demoData.overview.conversionGrowth > 0 ? 'text-green-600' : 'text-red-600'
-            }`}>
-              {demoData.overview.conversionGrowth > 0 ? (
-                <TrendingUp className="h-4 w-4" />
-              ) : (
-                <TrendingDown className="h-4 w-4" />
-              )}
-              {Math.abs(demoData.overview.conversionGrowth)}%
-            </div>
-          </div>
-          <h3 className="text-2xl font-bold text-gray-900">
-            {demoData.overview.conversionRate}%
-          </h3>
-          <p className="text-sm text-gray-500">Conversion Rate</p>
-        </div>
-      </div>
-
-      <div className="grid lg:grid-cols-3 gap-6">
-        {/* Sales Chart */}
-        <div className="lg:col-span-2 bg-white rounded-xl p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-gray-900">Sales Overview</h3>
-            <div className="flex gap-2">
-              {metrics.map((metric) => (
-                <button
-                  key={metric.value}
-                  onClick={() => setSelectedMetric(metric.value)}
-                  className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-                    selectedMetric === metric.value
-                      ? 'bg-brand-500 text-white'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
-                >
-                  {metric.label}
-                </button>
-              ))}
-            </div>
-          </div>
-          
-          {/* Simple Chart Visualization */}
-          <div className="h-64 bg-gray-50 rounded-lg p-4">
-            <div className="flex items-end justify-between h-full gap-2">
-              {demoData.salesChart.map((day, index) => (
-                <div key={index} className="flex-1 flex flex-col items-center gap-2">
-                  <div className="w-full bg-brand-500 rounded-t" style={{ height: `${(day.revenue / 25000) * 100}%` }} />
-                  <span className="text-xs text-gray-500">
-                    {new Date(day.date).getDate()}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Traffic Sources */}
-        <div className="bg-white rounded-xl p-6 shadow-sm">
-          <h3 className="text-lg font-semibold text-gray-900 mb-6">Traffic Sources</h3>
-          <div className="space-y-4">
-            {demoData.trafficSources.map((source, index) => (
-              <div key={index} className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="font-medium text-gray-900">{source.source}</span>
-                  <span className="text-gray-500">{source.percentage}%</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div
-                    className="bg-brand-500 h-2 rounded-full"
-                    style={{ width: `${source.percentage}%` }}
-                  />
-                </div>
-                <div className="flex items-center justify-between text-xs text-gray-500">
-                  <span>{formatNumber(source.visitors)} visitors</span>
-                  <span>{source.conversion}% conv.</span>
-                </div>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center bg-gray-100 rounded-lg p-1">
+                {['7d', '30d', '90d', '1y'].map((range) => (
+                  <button
+                    key={range}
+                    onClick={() => setTimeRange(range as any)}
+                    className={`px-3 py-1 text-sm font-medium rounded-md transition-colors ${
+                      timeRange === range
+                        ? 'bg-white text-gray-900 shadow-sm'
+                        : 'text-gray-600 hover:text-gray-900'
+                    }`}
+                  >
+                    {range === '7d' ? '7 Days' : range === '30d' ? '30 Days' : range === '90d' ? '90 Days' : '1 Year'}
+                  </button>
+                ))}
               </div>
-            ))}
+              <Button variant="outline">
+                <Download className="h-4 w-4 mr-2" />
+                Export
+              </Button>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Top Products */}
-      <div className="bg-white rounded-xl p-6 shadow-sm">
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg font-semibold text-gray-900">Top Products</h3>
-          <Button variant="outline" size="sm">View All</Button>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-gray-100">
-                <th className="text-left py-3 text-sm font-medium text-gray-500">Product</th>
-                <th className="text-right py-3 text-sm font-medium text-gray-500">Revenue</th>
-                <th className="text-right py-3 text-sm font-medium text-gray-500">Units Sold</th>
-                <th className="text-right py-3 text-sm font-medium text-gray-500">Growth</th>
-              </tr>
-            </thead>
-            <tbody>
-              {demoData.topProducts.map((product, index) => (
-                <tr key={index} className="border-b border-gray-50">
-                  <td className="py-3 text-sm font-medium text-gray-900">{product.name}</td>
-                  <td className="py-3 text-sm text-right font-medium">{formatCurrency(product.revenue)}</td>
-                  <td className="py-3 text-sm text-right text-gray-500">{formatNumber(product.units)}</td>
-                  <td className="py-3 text-sm text-right">
-                    <span className={`inline-flex items-center gap-1 ${
-                      product.growth > 0 ? 'text-green-600' : 'text-red-600'
-                    }`}>
-                      {product.growth > 0 ? (
-                        <TrendingUp className="h-3 w-3" />
-                      ) : (
-                        <TrendingDown className="h-3 w-3" />
-                      )}
-                      {Math.abs(product.growth)}%
-                    </span>
-                  </td>
-                </tr>
+      <div className="px-4 sm:px-6 lg:px-8 py-8">
+        {/* Key Metrics */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+        >
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                <DollarSign className="h-6 w-6 text-green-600" />
+              </div>
+              <div className={`flex items-center gap-1 text-sm font-medium ${
+                data.revenue.growth > 0 ? 'text-green-600' : 'text-red-600'
+              }`}>
+                {data.revenue.growth > 0 ? (
+                  <TrendingUp className="h-4 w-4" />
+                ) : (
+                  <TrendingDown className="h-4 w-4" />
+                )}
+                {formatPercent(data.revenue.growth)}
+              </div>
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900">{formatCurrency(data.revenue.total)}</h3>
+            <p className="text-sm text-gray-600">Total Revenue</p>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                <Calendar className="h-6 w-6 text-blue-600" />
+              </div>
+              <div className={`flex items-center gap-1 text-sm font-medium ${
+                data.bookings.growth > 0 ? 'text-green-600' : 'text-red-600'
+              }`}>
+                {data.bookings.growth > 0 ? (
+                  <TrendingUp className="h-4 w-4" />
+                ) : (
+                  <TrendingDown className="h-4 w-4" />
+                )}
+                {formatPercent(data.bookings.growth)}
+              </div>
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900">{data.bookings.total}</h3>
+            <p className="text-sm text-gray-600">Total Bookings</p>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                <Users className="h-6 w-6 text-purple-600" />
+              </div>
+              <div className={`flex items-center gap-1 text-sm font-medium ${
+                data.customers.growth > 0 ? 'text-green-600' : 'text-red-600'
+              }`}>
+                {data.customers.growth > 0 ? (
+                  <TrendingUp className="h-4 w-4" />
+                ) : (
+                  <TrendingDown className="h-4 w-4" />
+                )}
+                {formatPercent(data.customers.growth)}
+              </div>
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900">{data.customers.total}</h3>
+            <p className="text-sm text-gray-600">Total Customers</p>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                <ShoppingBag className="h-6 w-6 text-orange-600" />
+              </div>
+              <div className="text-sm font-medium text-gray-600">
+                {data.products.total} Products
+              </div>
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900">{data.products.total}</h3>
+            <p className="text-sm text-gray-600">Product Orders</p>
+          </div>
+        </motion.div>
+
+        {/* Charts Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          {/* Revenue Chart */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.1 }}
+            className="bg-white rounded-xl shadow-sm p-6"
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-gray-900">Revenue Overview</h3>
+              <BarChart3 className="h-5 w-5 text-gray-400" />
+            </div>
+            <div className="h-64 flex items-end justify-between gap-2">
+              {data.revenue.monthly.map((month, index) => (
+                <div key={month.month} className="flex-1 flex flex-col items-center gap-2">
+                  <div className="w-full bg-brand-500 rounded-t-lg relative" style={{ height: `${(month.revenue / Math.max(...data.revenue.monthly.map(m => m.revenue))) * 100}%` }}>
+                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 text-xs font-medium text-gray-700">
+                      {formatCurrency(month.revenue)}
+                    </div>
+                  </div>
+                  <span className="text-sm text-gray-600">{month.month}</span>
+                </div>
               ))}
-            </tbody>
-          </table>
+            </div>
+          </motion.div>
+
+          {/* Booking Status Distribution */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2 }}
+            className="bg-white rounded-xl shadow-sm p-6"
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-gray-900">Booking Status</h3>
+              <PieChart className="h-5 w-5 text-gray-400" />
+            </div>
+            <div className="space-y-4">
+              {data.bookings.byStatus.map((status) => {
+                const percentage = (status.count / data.bookings.total) * 100;
+                const color = status.status === 'confirmed' ? 'bg-green-500' : 
+                             status.status === 'pending' ? 'bg-yellow-500' : 
+                             status.status === 'completed' ? 'bg-blue-500' : 'bg-red-500';
+                
+                return (
+                  <div key={status.status} className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-3 h-3 rounded-full ${color}`}></div>
+                      <span className="text-sm font-medium text-gray-900 capitalize">{status.status}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm text-gray-600">{status.count}</span>
+                      <span className="text-sm font-medium text-gray-900">{percentage.toFixed(1)}%</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Service Performance & Top Products */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Service Performance */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="bg-white rounded-xl shadow-sm p-6"
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-gray-900">Service Performance</h3>
+              <TrendingUp className="h-5 w-5 text-gray-400" />
+            </div>
+            <div className="space-y-4">
+              {data.bookings.byService.map((service, index) => (
+                <div key={service.service} className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-brand-100 rounded-full flex items-center justify-center text-sm font-bold text-brand-600">
+                      {index + 1}
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">{service.service}</p>
+                      <p className="text-xs text-gray-500">{service.count} bookings</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-medium text-gray-900">{formatCurrency(service.revenue)}</p>
+                    <p className="text-xs text-gray-500">Revenue</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Top Products */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="bg-white rounded-xl shadow-sm p-6"
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-gray-900">Top Products</h3>
+              <ShoppingBag className="h-5 w-5 text-gray-400" />
+            </div>
+            <div className="space-y-4">
+              {data.products.topSelling.map((product, index) => (
+                <div key={product.name} className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center text-sm font-bold text-orange-600">
+                      {index + 1}
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">{product.name}</p>
+                      <p className="text-xs text-gray-500">{product.sales} sales</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-medium text-gray-900">{formatCurrency(product.revenue)}</p>
+                    <p className="text-xs text-gray-500">Revenue</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
         </div>
       </div>
     </div>

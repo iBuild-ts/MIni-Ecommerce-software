@@ -1,201 +1,289 @@
 'use client';
 
-import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle, formatPrice } from '@myglambeauty/ui';
-import {
-  DollarSign,
-  ShoppingCart,
-  Users,
-  TrendingUp,
-  Package,
-  Calendar,
-  ArrowUpRight,
-  ArrowDownRight,
+import { motion } from 'framer-motion';
+import { 
+  Users, 
+  Calendar, 
+  ShoppingBag, 
+  DollarSign, 
+  TrendingUp, 
+  Clock, 
+  CheckCircle, 
+  AlertCircle,
+  RefreshCw,
+  Eye,
+  Mail,
+  Phone
 } from 'lucide-react';
+import { Button } from '@myglambeauty/ui';
+import { useAdminDashboard } from '@/hooks/use-admin-dashboard';
+import Link from 'next/link';
 
-const stats = [
-  {
-    title: 'Total Revenue',
-    value: '$12,450',
-    change: '+12.5%',
-    trend: 'up',
-    icon: DollarSign,
-    color: 'bg-green-500',
-  },
-  {
-    title: 'Orders',
-    value: '156',
-    change: '+8.2%',
-    trend: 'up',
-    icon: ShoppingCart,
-    color: 'bg-blue-500',
-  },
-  {
-    title: 'Customers',
-    value: '2,340',
-    change: '+15.3%',
-    trend: 'up',
-    icon: Users,
-    color: 'bg-purple-500',
-  },
-  {
-    title: 'Conversion Rate',
-    value: '3.2%',
-    change: '-0.4%',
-    trend: 'down',
-    icon: TrendingUp,
-    color: 'bg-orange-500',
-  },
-];
+export default function AdminDashboardPage() {
+  const { stats, recentBookings, recentOrders, isLoading, error, refreshData } = useAdminDashboard();
 
-const recentOrders = [
-  { id: 'ORD-001', customer: 'Sarah Johnson', total: 4999, status: 'completed', date: '2024-01-15' },
-  { id: 'ORD-002', customer: 'Michelle Williams', total: 2499, status: 'processing', date: '2024-01-15' },
-  { id: 'ORD-003', customer: 'Jessica Davis', total: 7499, status: 'pending', date: '2024-01-14' },
-  { id: 'ORD-004', customer: 'Amanda Brown', total: 1499, status: 'completed', date: '2024-01-14' },
-  { id: 'ORD-005', customer: 'Emily Wilson', total: 3999, status: 'shipped', date: '2024-01-13' },
-];
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+    }).format(amount);
+  };
 
-const topProducts = [
-  { name: 'Queen Mink Lashes', sales: 145, revenue: 362355 },
-  { name: 'Princess Faux Mink Set', sales: 98, revenue: 342902 },
-  { name: 'Natural Beauty Lashes', sales: 87, revenue: 130413 },
-  { name: 'Drama Queen Volume', sales: 76, revenue: 227924 },
-];
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
+  };
 
-export default function DashboardPage() {
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'confirmed': return 'bg-green-100 text-green-800';
+      case 'pending': return 'bg-yellow-100 text-yellow-800';
+      case 'completed': return 'bg-blue-100 text-blue-800';
+      case 'cancelled': return 'bg-red-100 text-red-800';
+      case 'PAID': return 'bg-green-100 text-green-800';
+      case 'SHIPPED': return 'bg-blue-100 text-blue-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-500"></div>
+      </div>
+    );
+  }
+
+  if (error || !stats) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Dashboard Error</h2>
+          <p className="text-gray-600 mb-6">{error || 'Failed to load dashboard data'}</p>
+          <Button onClick={refreshData}>
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Try Again
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-8">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-500">Welcome back! Here&apos;s what&apos;s happening with your store.</p>
+      <div className="bg-white shadow-sm border-b">
+        <div className="px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
+              <p className="text-sm text-gray-600">Welcome back! Here's your business overview.</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <Button variant="outline" onClick={refreshData}>
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Refresh
+              </Button>
+              <Link href="/bookings">
+                <Button>
+                  <Calendar className="h-4 w-4 mr-2" />
+                  View All Bookings
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat) => (
-          <Card key={stat.title}>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-500">{stat.title}</p>
-                  <p className="text-2xl font-bold mt-1">{stat.value}</p>
-                  <div className="flex items-center gap-1 mt-2">
-                    {stat.trend === 'up' ? (
-                      <ArrowUpRight className="h-4 w-4 text-green-500" />
-                    ) : (
-                      <ArrowDownRight className="h-4 w-4 text-red-500" />
-                    )}
-                    <span
-                      className={`text-sm font-medium ${
-                        stat.trend === 'up' ? 'text-green-500' : 'text-red-500'
-                      }`}
-                    >
-                      {stat.change}
-                    </span>
-                    <span className="text-sm text-gray-400">vs last month</span>
-                  </div>
-                </div>
-                <div className={`p-3 rounded-full ${stat.color}`}>
-                  <stat.icon className="h-6 w-6 text-white" />
-                </div>
+      <div className="px-4 sm:px-6 lg:px-8 py-8">
+        {/* Stats Grid */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+        >
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                <Calendar className="h-6 w-6 text-blue-600" />
               </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {/* Main Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Recent Orders */}
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle>Recent Orders</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-gray-100">
-                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">Order</th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">Customer</th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">Total</th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">Status</th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">Date</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recentOrders.map((order) => (
-                    <tr key={order.id} className="border-b border-gray-50 hover:bg-gray-50">
-                      <td className="py-3 px-4 text-sm font-medium text-brand-600">{order.id}</td>
-                      <td className="py-3 px-4 text-sm">{order.customer}</td>
-                      <td className="py-3 px-4 text-sm font-medium">{formatPrice(order.total)}</td>
-                      <td className="py-3 px-4">
-                        <span
-                          className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                            order.status === 'completed'
-                              ? 'bg-green-100 text-green-700'
-                              : order.status === 'processing'
-                              ? 'bg-blue-100 text-blue-700'
-                              : order.status === 'shipped'
-                              ? 'bg-purple-100 text-purple-700'
-                              : 'bg-yellow-100 text-yellow-700'
-                          }`}
-                        >
-                          {order.status}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 text-sm text-gray-500">{order.date}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <span className="text-sm text-green-600 font-medium">+12%</span>
             </div>
-          </CardContent>
-        </Card>
+            <h3 className="text-2xl font-bold text-gray-900">{stats.totalBookings}</h3>
+            <p className="text-sm text-gray-600">Total Bookings</p>
+          </div>
 
-        {/* Top Products */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Top Products</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {topProducts.map((product, i) => (
-                <div key={product.name} className="flex items-center gap-4">
-                  <div className="w-8 h-8 bg-brand-100 rounded-full flex items-center justify-center text-sm font-bold text-brand-600">
-                    {i + 1}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{product.name}</p>
-                    <p className="text-xs text-gray-500">{product.sales} sales</p>
-                  </div>
-                  <p className="text-sm font-medium">{formatPrice(product.revenue)}</p>
-                </div>
-              ))}
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                <DollarSign className="h-6 w-6 text-green-600" />
+              </div>
+              <span className="text-sm text-green-600 font-medium">+{stats.monthlyGrowth}%</span>
             </div>
-          </CardContent>
-        </Card>
-      </div>
+            <h3 className="text-2xl font-bold text-gray-900">{formatCurrency(stats.totalRevenue)}</h3>
+            <p className="text-sm text-gray-600">Total Revenue</p>
+          </div>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {[
-          { label: 'Add Product', icon: Package, href: '/products/new' },
-          { label: 'View Orders', icon: ShoppingCart, href: '/orders' },
-          { label: 'Manage Bookings', icon: Calendar, href: '/bookings' },
-          { label: 'Send Campaign', icon: DollarSign, href: '/campaigns' },
-        ].map((action) => (
-          <Link
-            key={action.label}
-            href={action.href}
-            className="flex items-center gap-3 p-4 bg-white rounded-xl border border-gray-200 hover:border-brand-500 hover:shadow-md transition-all"
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                <Users className="h-6 w-6 text-purple-600" />
+              </div>
+              <span className="text-sm text-green-600 font-medium">+8%</span>
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900">{stats.activeCustomers}</h3>
+            <p className="text-sm text-gray-600">Active Customers</p>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                <ShoppingBag className="h-6 w-6 text-orange-600" />
+              </div>
+              <span className="text-sm text-green-600 font-medium">+15%</span>
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900">{stats.totalOrders}</h3>
+            <p className="text-sm text-gray-600">Product Orders</p>
+          </div>
+        </motion.div>
+
+        {/* Today's Overview */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8"
+        >
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">Today's Bookings</h3>
+              <Calendar className="h-5 w-5 text-gray-400" />
+            </div>
+            <p className="text-3xl font-bold text-gray-900 mb-2">{stats.todayBookings}</p>
+            <p className="text-sm text-gray-600">Appointments scheduled</p>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">Today's Revenue</h3>
+              <DollarSign className="h-5 w-5 text-gray-400" />
+            </div>
+            <p className="text-3xl font-bold text-gray-900 mb-2">{formatCurrency(stats.todayRevenue)}</p>
+            <p className="text-sm text-gray-600">Expected earnings</p>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">Pending Tasks</h3>
+              <Clock className="h-5 w-5 text-gray-400" />
+            </div>
+            <p className="text-3xl font-bold text-gray-900 mb-2">{stats.pendingBookings}</p>
+            <p className="text-sm text-gray-600">Bookings awaiting confirmation</p>
+          </div>
+        </motion.div>
+
+        {/* Recent Activity */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Recent Bookings */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2 }}
+            className="bg-white rounded-xl shadow-sm"
           >
-            <action.icon className="h-5 w-5 text-brand-500" />
-            <span className="text-sm font-medium">{action.label}</span>
-          </Link>
-        ))}
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-900">Recent Bookings</h3>
+                <Link href="/bookings">
+                  <Button variant="outline" size="sm">
+                    <Eye className="h-4 w-4 mr-2" />
+                    View All
+                  </Button>
+                </Link>
+              </div>
+            </div>
+            <div className="p-6">
+              <div className="space-y-4">
+                {recentBookings.map((booking) => (
+                  <div key={booking.id} className="flex items-center justify-between">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900 truncate">
+                        {booking.service.name}
+                      </p>
+                      <div className="flex items-center gap-4 mt-1">
+                        <p className="text-sm text-gray-600">{booking.customer.name}</p>
+                        <p className="text-sm text-gray-600">{booking.date}</p>
+                        <p className="text-sm text-gray-600">{booking.time}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(booking.status)}`}>
+                        {booking.status}
+                      </span>
+                      {booking.depositPaid && (
+                        <CheckCircle className="h-4 w-4 text-green-600" />
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Recent Orders */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3 }}
+            className="bg-white rounded-xl shadow-sm"
+          >
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-900">Recent Orders</h3>
+                <Link href="/orders">
+                  <Button variant="outline" size="sm">
+                    <Eye className="h-4 w-4 mr-2" />
+                    View All
+                  </Button>
+                </Link>
+              </div>
+            </div>
+            <div className="p-6">
+              <div className="space-y-4">
+                {recentOrders.map((order) => (
+                  <div key={order.id} className="flex items-center justify-between">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900">
+                        Order #{order.id}
+                      </p>
+                      <div className="flex items-center gap-4 mt-1">
+                        <p className="text-sm text-gray-600">
+                          {order.customer.firstName} {order.customer.lastName}
+                        </p>
+                        <p className="text-sm text-gray-600">{formatDate(order.createdAt)}</p>
+                        <p className="text-sm text-gray-600">
+                          {order.items.length} item{order.items.length > 1 ? 's' : ''}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(order.status)}`}>
+                        {order.status}
+                      </span>
+                      <span className="text-sm font-medium text-gray-900">
+                        {formatCurrency(order.totalCents)}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        </div>
       </div>
     </div>
   );
