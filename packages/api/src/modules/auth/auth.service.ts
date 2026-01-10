@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import { prisma } from '@myglambeauty/db';
 import { env } from '../../config/env';
 import { AppError } from '../../middleware/errorHandler';
+import { emailService } from '../notifications/email.service';
 
 export class AuthService {
   async login(email: string, password: string) {
@@ -49,6 +50,17 @@ export class AuthService {
         role: 'CUSTOMER',
       },
     });
+
+    // Send welcome email
+    try {
+      await emailService.sendWelcomeEmail({
+        name: name || 'Valued Customer',
+        email,
+      });
+    } catch (emailError) {
+      console.error('Failed to send welcome email:', emailError);
+      // Don't fail the registration if email fails
+    }
 
     const token = jwt.sign(
       { userId: user.id, role: user.role },

@@ -1,5 +1,6 @@
 import { prisma, BookingStatus } from '@myglambeauty/db';
 import { AppError } from '../../middleware/errorHandler';
+import { emailService } from '../notifications/email.service';
 
 export class BookingService {
   async create(data: {
@@ -28,7 +29,7 @@ export class BookingService {
       });
     }
 
-    return prisma.booking.create({
+    const booking = await prisma.booking.create({
       data: {
         ...data,
         customerId: customer.id,
@@ -36,6 +37,32 @@ export class BookingService {
       },
       include: { customer: true },
     });
+
+    // Send booking confirmation email
+    try {
+      await emailService.sendBookingConfirmation({
+        customerName: data.name || customer.firstName || 'Valued Customer',
+        customerEmail: data.email,
+        serviceName: data.service || 'Beauty Service',
+        date: new Date(data.scheduledFor).toLocaleDateString('en-US', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        }),
+        time: new Date(data.scheduledFor).toLocaleTimeString('en-US', {
+          hour: 'numeric',
+          minute: '2-digit',
+        }),
+        price: '$150.00', // This would come from service data
+        deposit: '$50.00', // This would come from service data
+      });
+    } catch (emailError) {
+      console.error('Failed to send booking confirmation email:', emailError);
+      // Don't fail the booking if email fails
+    }
+
+    return booking;
   }
 
   async getAll(options?: {

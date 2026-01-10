@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { mockBookingPaymentService } from './booking-payment.service.mock';
+import { emailService } from '../notifications/email.service';
 
 export class BookingPaymentController {
   async createDepositPayment(req: Request, res: Response, next: NextFunction) {
@@ -43,6 +44,22 @@ export class BookingPaymentController {
       const { paymentIntentId } = req.body;
       
       const result = await mockBookingPaymentService.handleDepositPaymentSuccess(paymentIntentId);
+      
+      // Send payment confirmation email
+      if (result.success && result.customerEmail) {
+        try {
+          await emailService.sendPaymentConfirmation({
+            customerName: result.customerName || 'Valued Customer',
+            customerEmail: result.customerEmail,
+            amount: result.amount || 0,
+            bookingId: result.bookingId || 'Unknown',
+            serviceName: result.serviceName || 'Beauty Service',
+          });
+        } catch (emailError) {
+          console.error('Failed to send payment confirmation email:', emailError);
+          // Don't fail the payment if email fails
+        }
+      }
       
       res.json(result);
     } catch (error) {

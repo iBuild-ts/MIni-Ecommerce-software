@@ -13,6 +13,7 @@ import leadRoutes from './modules/leads/lead.routes';
 import bookingRoutes from './modules/bookings/booking.routes';
 import paymentRoutes from './modules/payments/payment.routes';
 import analyticsRoutes from './modules/analytics/analytics.routes';
+import { notificationRoutes } from './modules/notifications/notification.routes';
 import { handleStripeWebhook } from './modules/orders/order.webhooks';
 
 const app = express();
@@ -42,6 +43,7 @@ app.use('/api/leads', leadRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Error handler
 app.use(errorHandler);
