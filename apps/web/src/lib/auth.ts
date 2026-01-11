@@ -16,6 +16,7 @@ interface AuthStore {
   logout: () => void;
   register: (userData: Omit<User, 'id'>) => void;
   updateProfile: (updates: Partial<User>) => void;
+  checkAuth: () => void;
 }
 
 export const useAuthStore = create<AuthStore>()(
@@ -32,6 +33,11 @@ export const useAuthStore = create<AuthStore>()(
       },
 
       logout: () => {
+        // Clear localStorage
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+        }
         set({
           user: null,
           isAuthenticated: false,
@@ -58,9 +64,42 @@ export const useAuthStore = create<AuthStore>()(
           });
         }
       },
+
+      // Check if user is authenticated from localStorage token
+      checkAuth: () => {
+        if (typeof window === 'undefined') return;
+        
+        const token = localStorage.getItem('token');
+        const userStr = localStorage.getItem('user');
+        
+        if (token && userStr) {
+          try {
+            const userData = JSON.parse(userStr);
+            set({
+              user: {
+                id: userData.id,
+                name: userData.name || '',
+                email: userData.email,
+                isSubscribed: false,
+              },
+              isAuthenticated: true,
+            });
+          } catch (e) {
+            // Invalid user data, clear it
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+          }
+        }
+      },
     }),
     {
       name: 'auth-storage',
+      onRehydrateStorage: () => (state) => {
+        // After rehydration, also check localStorage for token
+        if (state) {
+          state.checkAuth();
+        }
+      },
     }
   )
 );

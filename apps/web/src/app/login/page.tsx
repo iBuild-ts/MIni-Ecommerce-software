@@ -6,8 +6,10 @@ import { Eye, EyeOff, Mail, Lock, ArrowRight, User } from 'lucide-react';
 import Link from 'next/link';
 import { Button, Input } from '@myglambeauty/ui';
 import { api } from '@/lib/api';
+import { useAuthStore } from '@/lib/auth';
 
 export default function LoginPage() {
+  const { login } = useAuthStore();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -28,8 +30,18 @@ export default function LoginPage() {
       localStorage.setItem('token', result.token);
       localStorage.setItem('user', JSON.stringify(result.user));
       
-      // Redirect to account page
-      window.location.href = '/account';
+      // Update auth store so cart and other pages know user is logged in
+      login({
+        id: result.user.id,
+        name: result.user.name || '',
+        email: result.user.email,
+        isSubscribed: false,
+      });
+      
+      // Check for redirect URL in query params
+      const urlParams = new URLSearchParams(window.location.search);
+      const redirect = urlParams.get('redirect') || '/account';
+      window.location.href = redirect;
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Login failed');
     } finally {
