@@ -19,7 +19,7 @@ export class AuthService {
     }
 
     const token = jwt.sign(
-      { userId: user.id, role: user.role },
+      { userId: user.id, role: user.role, email: user.email },
       env.JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -63,7 +63,7 @@ export class AuthService {
     }
 
     const token = jwt.sign(
-      { userId: user.id, role: user.role },
+      { userId: user.id, role: user.role, email: user.email },
       env.JWT_SECRET,
       { expiresIn: '7d' }
     );

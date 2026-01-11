@@ -48,39 +48,22 @@ export default function OrderDetailsPage() {
     setError(null);
 
     try {
-      // Mock order details - in real app, this would be an API call
-      const mockOrder: OrderDetails = {
-        id: orderId,
-        status: 'SHIPPED',
-        subtotalCents: 24999,
-        totalCents: 24999,
-        isPaid: true,
-        createdAt: '2024-01-08T15:30:00Z',
-        shippingAddress: {
-          street: '123 Beauty Lane',
-          city: 'Glamour City',
-          state: 'CA',
-          zipCode: '90210',
-          country: 'USA',
-        },
-        trackingNumber: '1Z999AA10123456784',
-        items: [
-          {
-            id: 'item_1',
-            productName: '16IN LOOSE WAVE Bundle - Natural Black',
-            quantity: 3,
-            unitPriceCents: 8333,
-            totalCents: 24999,
+      const token = localStorage.getItem('token');
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/orders/${orderId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
           },
-        ],
-        customer: {
-          email: 'sarah@example.com',
-          firstName: 'Sarah',
-          lastName: 'Johnson',
-        },
-      };
+        }
+      );
 
-      setOrder(mockOrder);
+      if (!response.ok) {
+        throw new Error('Order not found');
+      }
+
+      const orderData = await response.json();
+      setOrder(orderData);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch order details');
     } finally {

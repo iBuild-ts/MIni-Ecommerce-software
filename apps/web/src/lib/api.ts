@@ -127,6 +127,26 @@ export const api = {
       }),
     getSlots: (date: string) =>
       fetchAPI<string[]>(`/api/bookings/slots?date=${date}`),
+    getMyBookings: () =>
+      fetchAPI<{ bookings: any[] }>('/api/bookings/my', {
+        headers: {
+          Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('token') : ''}`,
+        },
+      }),
+  },
+  orders: {
+    getMyOrders: () =>
+      fetchAPI<{ orders: any[] }>('/api/orders/my', {
+        headers: {
+          Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('token') : ''}`,
+        },
+      }),
+    getById: (id: string) =>
+      fetchAPI<any>(`/api/orders/${id}`, {
+        headers: {
+          Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('token') : ''}`,
+        },
+      }),
   },
   checkout: {
     create: (data: {

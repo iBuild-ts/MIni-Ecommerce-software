@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { SimpleBookingController } from './booking.controller.simple';
-// import { authenticate, requireAdmin } from '../../middleware/auth';
+import { authenticate } from '../../middleware/auth';
 
 const router: Router = Router();
 const simpleBookingController = new SimpleBookingController();
@@ -8,6 +8,9 @@ const simpleBookingController = new SimpleBookingController();
 // Public routes
 router.post('/', simpleBookingController.create.bind(simpleBookingController));
 router.get('/slots', simpleBookingController.getAvailableSlots.bind(simpleBookingController));
+
+// Customer route - get my bookings
+router.get('/my', authenticate, simpleBookingController.getMyBookings.bind(simpleBookingController));
 
 // Admin routes (made public for testing)
 router.get('/', simpleBookingController.getAll.bind(simpleBookingController));

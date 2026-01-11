@@ -271,4 +271,29 @@ export class SimpleBookingController {
       res.status(500).json({ error: 'Failed to fetch available slots' });
     }
   }
+
+  async getMyBookings(req: Request, res: Response) {
+    try {
+      // Get user email from auth token
+      const userEmail = (req as any).userEmail;
+      
+      console.log('Fetching bookings for user:', userEmail);
+      
+      if (!userEmail) {
+        // Return all bookings if no email (for demo purposes)
+        return res.json({ bookings });
+      }
+
+      // Filter bookings by customer email
+      const userBookings = bookings.filter(b => 
+        b.customer.email.toLowerCase() === userEmail.toLowerCase()
+      );
+
+      console.log('Found bookings:', userBookings.length);
+      res.json({ bookings: userBookings });
+    } catch (error) {
+      console.error('Get my bookings error:', error);
+      res.status(500).json({ error: 'Failed to fetch bookings' });
+    }
+  }
 }

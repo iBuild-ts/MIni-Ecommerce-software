@@ -53,6 +53,16 @@ export class OrderController {
       next(error);
     }
   }
+
+  async getMyOrders(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userEmail = (req as any).userEmail;
+      const result = await orderService.getByCustomerEmail(userEmail);
+      res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export const orderController = new OrderController();

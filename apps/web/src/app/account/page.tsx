@@ -444,10 +444,12 @@ export default function AccountPage() {
                           <p>Subtotal: ${(order.subtotalCents / 100).toFixed(2)}</p>
                           <p className="font-medium text-gray-900">Total: ${(order.totalCents / 100).toFixed(2)}</p>
                         </div>
-                        <Button variant="outline" size="sm">
-                          <Eye className="h-4 w-4 mr-2" />
-                          View Details
-                        </Button>
+                        <Link href={`/orders/${order.id}`}>
+                          <Button variant="outline" size="sm">
+                            <Eye className="h-4 w-4 mr-2" />
+                            View Details
+                          </Button>
+                        </Link>
                       </div>
                     </div>
                   ))}

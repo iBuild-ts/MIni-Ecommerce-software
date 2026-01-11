@@ -190,6 +190,28 @@ export class OrderService {
       ordersByStatus,
     };
   }
+
+  async getByCustomerEmail(email: string) {
+    if (!email) {
+      return { orders: [] };
+    }
+
+    const customer = await prisma.customer.findUnique({
+      where: { email },
+    });
+
+    if (!customer) {
+      return { orders: [] };
+    }
+
+    const orders = await prisma.order.findMany({
+      where: { customerId: customer.id },
+      include: { items: true, customer: true },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return { orders };
+  }
 }
 
 export const orderService = new OrderService();
