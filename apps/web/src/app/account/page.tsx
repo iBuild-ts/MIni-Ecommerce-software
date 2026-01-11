@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { User, Mail, Phone, Calendar, ShoppingBag, Clock, LogOut, Edit2, Eye, Package, RefreshCw } from 'lucide-react';
+import { User, Mail, Phone, Calendar, ShoppingBag, Clock, LogOut, Edit2, Eye, Package, RefreshCw, Check } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@myglambeauty/ui';
 import { api } from '@/lib/api';

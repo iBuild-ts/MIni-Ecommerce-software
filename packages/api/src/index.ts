@@ -28,7 +28,16 @@ app.post('/webhooks/stripe', express.raw({ type: 'application/json' }), handleSt
 // Middleware
 app.use(helmet());
 app.use(cors({
-  origin: [env.FRONTEND_URL, env.ADMIN_URL],
+  origin: [
+    env.FRONTEND_URL, 
+    env.ADMIN_URL,
+    'http://localhost:3000',
+    'http://localhost:3001', 
+    'http://localhost:3002',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://127.0.0.1:3002',
+  ],
   credentials: true,
 }));
 
