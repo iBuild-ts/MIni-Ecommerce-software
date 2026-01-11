@@ -21,16 +21,51 @@ export default function CartPage() {
   const handleCheckout = async () => {
     if (!isAuthenticated) {
       // Redirect to login page with checkout intent
-      window.location.href = '/account?redirect=checkout';
+      window.location.href = '/login?redirect=/cart';
       return;
     }
 
     setIsCheckingOut(true);
-    // In production, this would create a Stripe checkout session
-    setTimeout(() => {
-      alert('Checkout functionality would redirect to Stripe here!');
+    
+    try {
+      // Create checkout with Stripe
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/orders/checkout`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify({
+          items: items.map(item => ({
+            productId: item.id,
+            quantity: item.quantity,
+          })),
+          customerEmail: user?.email || '',
+          customerName: user?.name || '',
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Checkout failed');
+      }
+
+      const { clientSecret, order } = await response.json();
+      
+      // Store checkout data and redirect to checkout page
+      sessionStorage.setItem('checkoutData', JSON.stringify({
+        clientSecret,
+        orderId: order.id,
+        total: order.totalCents,
+      }));
+      
+      window.location.href = '/checkout';
+    } catch (error) {
+      console.error('Checkout error:', error);
+      alert(error instanceof Error ? error.message : 'Checkout failed. Please try again.');
+    } finally {
       setIsCheckingOut(false);
-    }, 1000);
+    }
   };
 
   if (items.length === 0) {

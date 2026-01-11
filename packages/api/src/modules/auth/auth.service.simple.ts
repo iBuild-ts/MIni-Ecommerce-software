@@ -95,6 +95,93 @@ export class SimpleAuthService {
       createdAt: user.createdAt,
     };
   }
+
+  async updateProfile(userId: string, data: { name?: string; phone?: string }) {
+    const userIndex = users.findIndex(u => u.id === userId);
+    
+    if (userIndex === -1) {
+      throw new AppError('User not found', 404);
+    }
+
+    if (data.name) {
+      users[userIndex].name = data.name;
+    }
+
+    return {
+      id: users[userIndex].id,
+      email: users[userIndex].email,
+      name: users[userIndex].name,
+      role: users[userIndex].role,
+      createdAt: users[userIndex].createdAt,
+    };
+  }
+
+  async forgotPassword(email: string) {
+    const user = users.find(u => u.email === email);
+    
+    if (!user) {
+      // Don't reveal if email exists for security
+      return { message: 'If an account exists, a reset link has been sent' };
+    }
+
+    // Generate reset token (expires in 1 hour)
+    const resetToken = jwt.sign(
+      { userId: user.id, purpose: 'password_reset' },
+      env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    // In production, send email here
+    console.log(`📧 Password reset token for ${email}: ${resetToken}`);
+
+    return { message: 'If an account exists, a reset link has been sent' };
+  }
+
+  async resetPassword(token: string, newPassword: string) {
+    try {
+      const decoded = jwt.verify(token, env.JWT_SECRET) as { userId: string; purpose: string };
+      
+      if (decoded.purpose !== 'password_reset') {
+        throw new AppError('Invalid reset token', 400);
+      }
+
+      const userIndex = users.findIndex(u => u.id === decoded.userId);
+      if (userIndex === -1) {
+        throw new AppError('User not found', 404);
+      }
+
+      const passwordHash = await bcrypt.hash(newPassword, 10);
+      users[userIndex].passwordHash = passwordHash;
+
+      return { message: 'Password reset successfully' };
+    } catch (error) {
+      if (error instanceof jwt.TokenExpiredError) {
+        throw new AppError('Reset token has expired', 400);
+      }
+      if (error instanceof jwt.JsonWebTokenError) {
+        throw new AppError('Invalid reset token', 400);
+      }
+      throw error;
+    }
+  }
+
+  async changePassword(userId: string, currentPassword: string, newPassword: string) {
+    const userIndex = users.findIndex(u => u.id === userId);
+    
+    if (userIndex === -1) {
+      throw new AppError('User not found', 404);
+    }
+
+    const isValidPassword = await bcrypt.compare(currentPassword, users[userIndex].passwordHash);
+    if (!isValidPassword) {
+      throw new AppError('Current password is incorrect', 400);
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, 10);
+    users[userIndex].passwordHash = passwordHash;
+
+    return { message: 'Password changed successfully' };
+  }
 }
 
 export const simpleAuthService = new SimpleAuthService();

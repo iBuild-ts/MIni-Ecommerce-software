@@ -172,6 +172,72 @@ class EmailService {
     });
   }
 
+  async sendPasswordResetEmail(data: {
+    name: string;
+    email: string;
+    resetToken: string;
+  }) {
+    const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:3002'}/reset-password?token=${data.resetToken}`;
+    const subject = 'Reset Your Password - MYGlamBeauty';
+    const html = this.generatePasswordResetTemplate({ ...data, resetUrl });
+    
+    return this.sendEmail({
+      to: data.email,
+      subject,
+      html,
+    });
+  }
+
+  private generatePasswordResetTemplate(data: { name: string; resetUrl: string }): string {
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Reset Your Password</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: #2563eb; color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+          .content { background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px; }
+          .cta-button { background: #2563eb; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; display: inline-block; margin: 20px 0; }
+          .warning { background: #fef3c7; border: 1px solid #f59e0b; padding: 15px; border-radius: 5px; margin: 20px 0; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>Password Reset Request 🔐</h1>
+          </div>
+          <div class="content">
+            <h2>Hello ${data.name},</h2>
+            <p>We received a request to reset your password for your MYGlamBeauty account.</p>
+            
+            <p>Click the button below to reset your password:</p>
+            
+            <a href="${data.resetUrl}" class="cta-button">Reset Password</a>
+            
+            <div class="warning">
+              <strong>⚠️ Important:</strong>
+              <ul>
+                <li>This link expires in 1 hour</li>
+                <li>If you didn't request this reset, please ignore this email</li>
+                <li>Your password won't change until you create a new one</li>
+              </ul>
+            </div>
+            
+            <p>If the button doesn't work, copy and paste this link into your browser:</p>
+            <p style="word-break: break-all; color: #2563eb;">${data.resetUrl}</p>
+            
+            <p>Best regards,<br>The MYGlamBeauty Team</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+  }
+
   // Email template generators
   private generateBookingConfirmationTemplate(data: any): string {
     return `
