@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { SimpleProductController } from './product.controller.simple';
+import { productController } from './product.controller';
 import multer from 'multer';
 
 const router = Router();
@@ -17,31 +17,31 @@ const upload = multer({
   }
 });
 
-// Simple controller for demo (no database required)
-const simpleProductController = new SimpleProductController();
+// Public routes - now using database-backed controller
+router.get('/', productController.getAll.bind(productController));
+router.get('/slug/:slug', productController.getBySlug.bind(productController));
+router.get('/:id', productController.getById.bind(productController));
 
-// Public routes
-router.get('/', simpleProductController.getAll.bind(simpleProductController));
-router.get('/categories', simpleProductController.getCategories.bind(simpleProductController));
-router.get('/slug/:slug', simpleProductController.getBySlug.bind(simpleProductController));
-router.get('/:id', simpleProductController.getById.bind(simpleProductController));
-
-// Admin routes - no auth required for demo
+// Admin routes
 router.post(
   '/',
-  upload.array('images', 5), // Handle up to 5 images
-  simpleProductController.create.bind(simpleProductController)
+  upload.array('images', 5),
+  productController.create.bind(productController)
 );
 
 router.patch(
   '/:id',
   upload.array('images', 5),
-  simpleProductController.update.bind(simpleProductController)
+  productController.update.bind(productController)
 );
 
 router.delete(
   '/:id',
-  simpleProductController.delete.bind(simpleProductController)
+  productController.delete.bind(productController)
 );
+
+// Image management
+router.post('/:id/images', productController.addImage.bind(productController));
+router.delete('/images/:imageId', productController.removeImage.bind(productController));
 
 export default router;
