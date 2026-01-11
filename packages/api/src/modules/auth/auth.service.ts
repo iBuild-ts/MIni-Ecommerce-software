@@ -42,13 +42,45 @@ export class AuthService {
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
-    const user = await prisma.user.create({
-      data: {
-        email,
-        passwordHash,
-        name,
-        role: 'CUSTOMER', // Default role for new registrations
-      },
+    
+    // Create user and customer record in a transaction
+    const [user, customer] = await prisma.$transaction(async (tx) => {
+      const newUser = await tx.user.create({
+        data: {
+          email,
+          passwordHash,
+          name,
+          role: 'CUSTOMER',
+        },
+      });
+
+      // Also create a Customer record for order/booking tracking
+      const newCustomer = await tx.customer.upsert({
+        where: { email },
+        update: {
+          firstName: name?.split(' ')[0],
+          lastName: name?.split(' ').slice(1).join(' ') || undefined,
+        },
+        create: {
+          email,
+          firstName: name?.split(' ')[0],
+          lastName: name?.split(' ').slice(1).join(' ') || undefined,
+        },
+      });
+
+      // Also create a Lead record for marketing (if not exists)
+      const existingLead = await tx.lead.findFirst({ where: { email } });
+      if (!existingLead) {
+        await tx.lead.create({
+          data: {
+            email,
+            name: name || undefined,
+            source: 'registration',
+          },
+        });
+      }
+
+      return [newUser, newCustomer];
     });
 
     // Send welcome email
@@ -59,7 +91,6 @@ export class AuthService {
       });
     } catch (emailError) {
       console.error('Failed to send welcome email:', emailError);
-      // Don't fail the registration if email fails
     }
 
     const token = jwt.sign(
