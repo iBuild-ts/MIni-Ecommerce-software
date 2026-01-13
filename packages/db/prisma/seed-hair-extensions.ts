@@ -241,6 +241,158 @@ async function main() {
     isActive: false,
   });
 
+  // ============================================
+  // LASHES - Authentic products
+  // ============================================
+  const lashProducts = [
+    {
+      name: 'Queen Mink Lashes',
+      slug: 'queen-mink-lashes',
+      description: 'Luxurious 3D mink lashes for the ultimate glamorous look. Handcrafted with premium mink fur, lightweight and reusable up to 25 times.',
+      priceCents: 2499,
+      stock: 150,
+      sku: 'LASH-QUEEN-001',
+      mainImageUrl: 'https://images.unsplash.com/photo-1583001931096-959e9a1a6223?w=800',
+      tags: ['mink', 'luxury', 'bestseller', '3d'],
+      category: 'Lashes',
+    },
+    {
+      name: 'Princess Faux Mink Set',
+      slug: 'princess-faux-mink-set',
+      description: 'Cruelty-free faux mink lashes with stunning volume. Set includes 5 pairs from natural to dramatic styles.',
+      priceCents: 3499,
+      stock: 200,
+      sku: 'LASH-PRINCESS-002',
+      mainImageUrl: 'https://images.unsplash.com/photo-1597225244660-1cd128c64284?w=800',
+      tags: ['faux-mink', 'vegan', 'set', 'cruelty-free'],
+      category: 'Lashes',
+    },
+    {
+      name: 'Natural Beauty Lashes',
+      slug: 'natural-beauty-lashes',
+      description: 'Subtle, wispy lashes for an effortlessly natural look. Perfect for everyday wear.',
+      priceCents: 1499,
+      stock: 300,
+      sku: 'LASH-NATURAL-003',
+      mainImageUrl: 'https://images.unsplash.com/photo-1512207846876-bb54ef5056fe?w=800',
+      tags: ['natural', 'everyday', 'lightweight'],
+      category: 'Lashes',
+    },
+    {
+      name: 'Drama Queen Volume Lashes',
+      slug: 'drama-queen-volume-lashes',
+      description: 'Maximum volume and drama for those who love to stand out. Perfect for special events.',
+      priceCents: 2999,
+      stock: 100,
+      sku: 'LASH-DRAMA-004',
+      mainImageUrl: 'https://images.unsplash.com/photo-1588495752527-77d73a9a0b75?w=800',
+      tags: ['dramatic', 'volume', 'bold', 'party'],
+      category: 'Lashes',
+    },
+    {
+      name: 'Magnetic Lash Kit',
+      slug: 'magnetic-lash-kit',
+      description: 'Revolutionary magnetic lashes with magnetic eyeliner. No glue needed! Kit includes 2 pairs.',
+      priceCents: 3999,
+      stock: 80,
+      sku: 'LASH-MAG-005',
+      mainImageUrl: 'https://images.unsplash.com/photo-1631214524020-7e18db9a8f92?w=800',
+      tags: ['magnetic', 'kit', 'easy-apply'],
+      category: 'Lashes',
+    },
+    {
+      name: 'Wispy Cat Eye Lashes',
+      slug: 'wispy-cat-eye-lashes',
+      description: 'Elongated outer corners for the perfect cat eye effect. Lightweight and comfortable.',
+      priceCents: 1999,
+      stock: 120,
+      sku: 'LASH-CAT-006',
+      mainImageUrl: 'https://images.unsplash.com/photo-1516914589923-f105f1535f88?w=800',
+      tags: ['cat-eye', 'wispy', 'elegant'],
+      category: 'Lashes',
+    },
+  ];
+
+  for (const lash of lashProducts) {
+    products.push(lash);
+  }
+
+  // ============================================
+  // ACCESSORIES - Authentic products
+  // ============================================
+  const accessoryProducts = [
+    {
+      name: 'Lash Adhesive - Strong Hold',
+      slug: 'lash-adhesive-strong-hold',
+      description: 'Professional-grade lash adhesive. Waterproof, dries clear, latex-free. All-day hold.',
+      priceCents: 899,
+      stock: 500,
+      sku: 'ACC-GLUE-001',
+      mainImageUrl: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=800',
+      tags: ['adhesive', 'waterproof', 'latex-free'],
+      category: 'Accessories',
+    },
+    {
+      name: 'Lash Applicator Tool',
+      slug: 'lash-applicator-tool',
+      description: 'Precision lash applicator for perfect placement. Ergonomic rose gold design.',
+      priceCents: 1299,
+      stock: 250,
+      sku: 'ACC-TOOL-002',
+      mainImageUrl: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800',
+      tags: ['tool', 'applicator', 'rose-gold'],
+      category: 'Accessories',
+    },
+    {
+      name: 'Luxury Lash Storage Case',
+      slug: 'luxury-lash-storage-case',
+      description: 'Elegant storage case for up to 10 pairs. Features mirror inside lid.',
+      priceCents: 1999,
+      stock: 120,
+      sku: 'ACC-CASE-003',
+      mainImageUrl: 'https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=800',
+      tags: ['storage', 'case', 'luxury'],
+      category: 'Accessories',
+    },
+    {
+      name: 'Lash Serum - Growth Formula',
+      slug: 'lash-serum-growth-formula',
+      description: 'Nourishing lash serum to promote natural lash growth and strength.',
+      priceCents: 2999,
+      stock: 100,
+      sku: 'ACC-SERUM-004',
+      mainImageUrl: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=800',
+      tags: ['serum', 'growth', 'treatment'],
+      category: 'Accessories',
+    },
+    {
+      name: 'Eyelash Curler - Professional',
+      slug: 'eyelash-curler-professional',
+      description: 'Professional-grade eyelash curler with silicone pads. Creates long-lasting curl.',
+      priceCents: 1599,
+      stock: 180,
+      sku: 'ACC-CURLER-005',
+      mainImageUrl: 'https://images.unsplash.com/photo-1512207576147-0ac0f6f5e1c2?w=800',
+      tags: ['curler', 'professional', 'tool'],
+      category: 'Accessories',
+    },
+    {
+      name: 'Lash Remover Solution',
+      slug: 'lash-remover-solution',
+      description: 'Gentle lash adhesive remover. Oil-based formula, safe for sensitive eyes.',
+      priceCents: 799,
+      stock: 300,
+      sku: 'ACC-REMOVER-006',
+      mainImageUrl: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=800',
+      tags: ['remover', 'gentle', 'oil-based'],
+      category: 'Accessories',
+    },
+  ];
+
+  for (const accessory of accessoryProducts) {
+    products.push(accessory);
+  }
+
   // Clear existing products first
   console.log('🗑️  Clearing existing products...');
   await prisma.orderItem.deleteMany({});

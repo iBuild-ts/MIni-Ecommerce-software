@@ -7,7 +7,7 @@ import { ProductCard } from '@/components/product/product-card';
 import { Button } from '@myglambeauty/ui';
 import { api } from '@/lib/api';
 
-const categories = ['All', 'Lashes', 'Accessories'];
+const categories = ['All', 'Lashes', 'Accessories', 'Hair Extensions', 'Frontals', 'Closures'];
 
 export default function ProductsPage() {
   const [allProducts, setAllProducts] = useState([]);
