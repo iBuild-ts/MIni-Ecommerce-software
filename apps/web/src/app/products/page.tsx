@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Search, SlidersHorizontal, X } from 'lucide-react';
+import { Search, X } from 'lucide-react';
 import { ProductCard } from '@/components/product/product-card';
 import { Button } from '@myglambeauty/ui';
 import { api } from '@/lib/api';
@@ -13,22 +13,13 @@ const mainCategories = ['All', 'Lashes', 'Accessories', 'Hair Extensions'];
 // Hair Extensions sub-categories
 const hairExtensionCategories = ['Bundles', 'Frontals', 'Closures'];
 
-// Subcategory filters
-const subcategoryFilters: Record<string, string[]> = {
-  'Bundles': ['All', 'Straight', 'Body Wave', 'Curly'],
-  'Frontals': ['All', '13x4 Transparent', '13x4 HD', '13x6 Transparent', '13x6 HD'],
-  'Closures': ['All'],
-};
-
 export default function ProductsPage() {
   const [allProducts, setAllProducts] = useState([]);
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedHairCategory, setSelectedHairCategory] = useState('Bundles');
-  const [selectedSubcategory, setSelectedSubcategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
-  const [showFilters, setShowFilters] = useState(false);
 
   // Fetch products from API on mount
   useEffect(() => {
@@ -60,20 +51,13 @@ export default function ProductsPage() {
     fetchProducts();
   }, []);
 
-  // Filter products based on category, subcategory, and search
+  // Filter products based on category and search
   useEffect(() => {
     let filtered = allProducts;
 
     if (selectedCategory === 'Hair Extensions') {
       // Filter by hair extension sub-category (Bundles, Frontals, Closures)
       filtered = filtered.filter((p: any) => p.category === selectedHairCategory);
-      
-      // Filter by subcategory if not "All"
-      if (selectedSubcategory !== 'All') {
-        filtered = filtered.filter((p: any) => 
-          p.tags.some((t: string) => t === `subcat:${selectedSubcategory}`)
-        );
-      }
     } else if (selectedCategory !== 'All') {
       filtered = filtered.filter((p: any) => p.category === selectedCategory);
     }
@@ -88,12 +72,7 @@ export default function ProductsPage() {
     }
 
     setProducts(filtered);
-  }, [allProducts, selectedCategory, selectedHairCategory, selectedSubcategory, searchQuery]);
-
-  // Reset subcategory when hair category changes
-  useEffect(() => {
-    setSelectedSubcategory('All');
-  }, [selectedHairCategory]);
+  }, [allProducts, selectedCategory, selectedHairCategory, searchQuery]);
 
   return (
     <div className="pt-20 lg:pt-24 pb-20">
@@ -159,8 +138,7 @@ export default function ProductsPage() {
 
         {/* Hair Extensions Sub-Categories */}
         {selectedCategory === 'Hair Extensions' && (
-          <div className="mb-6 space-y-4">
-            {/* Bundles / Frontals / Closures tabs */}
+          <div className="mb-6">
             <div className="flex gap-2 overflow-x-auto pb-2">
               {hairExtensionCategories.map((cat) => (
                 <button
@@ -176,25 +154,6 @@ export default function ProductsPage() {
                 </button>
               ))}
             </div>
-
-            {/* Subcategory filters (Straight, Body Wave, etc.) */}
-            {subcategoryFilters[selectedHairCategory]?.length > 1 && (
-              <div className="flex gap-2 overflow-x-auto pb-2">
-                {subcategoryFilters[selectedHairCategory].map((sub) => (
-                  <button
-                    key={sub}
-                    onClick={() => setSelectedSubcategory(sub)}
-                    className={`px-4 py-2 rounded-md text-xs font-medium whitespace-nowrap transition-colors border ${
-                      selectedSubcategory === sub
-                        ? 'bg-gray-900 text-white border-gray-900'
-                        : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400'
-                    }`}
-                  >
-                    {sub}
-                  </button>
-                ))}
-              </div>
-            )}
           </div>
         )}
 

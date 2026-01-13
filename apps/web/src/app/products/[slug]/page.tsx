@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -10,10 +10,30 @@ import { useCartStore } from '@/lib/store';
 import { api } from '@/lib/api';
 
 const reviews = [
-  { id: 1, name: 'Sarah J.', rating: 5, comment: 'These lashes are absolutely stunning! So lightweight and natural-looking.', date: '2024-01-10' },
-  { id: 2, name: 'Michelle W.', rating: 5, comment: 'Best lashes I\'ve ever purchased! The quality is amazing.', date: '2024-01-08' },
-  { id: 3, name: 'Jessica D.', rating: 4, comment: 'Beautiful lashes, very easy to apply. Will buy again!', date: '2024-01-05' },
+  { id: 1, name: 'Sarah J.', rating: 5, comment: 'Absolutely stunning quality! Will definitely buy again.', date: '2024-01-10' },
+  { id: 2, name: 'Michelle W.', rating: 5, comment: 'Best purchase I\'ve made! The quality is amazing.', date: '2024-01-08' },
+  { id: 3, name: 'Jessica D.', rating: 4, comment: 'Beautiful product, very easy to use. Highly recommend!', date: '2024-01-05' },
 ];
+
+// Types for variants
+interface VariantOption {
+  value: string;
+  label: string;
+  priceCents?: number;
+}
+
+interface VariantGroup {
+  type: string;
+  label: string;
+  options: VariantOption[];
+}
+
+interface VariantData {
+  type: 'size' | 'multi';
+  label?: string;
+  options?: VariantOption[];
+  groups?: VariantGroup[];
+}
 
 export default function ProductDetailPage({ params }: { params: { slug: string } }) {
   const [product, setProduct] = useState<any>(null);
@@ -21,14 +41,69 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [isAdded, setIsAdded] = useState(false);
+  const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({});
   const addItem = useCartStore((state) => state.addItem);
+
+  // Parse variants from product tags
+  const variantData = useMemo<VariantData | null>(() => {
+    if (!product?.tags) return null;
+    const variantTag = product.tags.find((t: string) => t.startsWith('variants:'));
+    if (!variantTag) return null;
+    try {
+      return JSON.parse(variantTag.replace('variants:', ''));
+    } catch {
+      return null;
+    }
+  }, [product?.tags]);
+
+  // Calculate current price based on selected variants
+  const currentPrice = useMemo(() => {
+    if (!variantData || !product) return product?.priceCents || 0;
+
+    if (variantData.type === 'size' && variantData.options) {
+      const selectedSize = selectedVariants['size'];
+      const option = variantData.options.find(o => o.value === selectedSize);
+      return option?.priceCents || variantData.options[0]?.priceCents || product.priceCents;
+    }
+
+    if (variantData.type === 'multi' && variantData.groups) {
+      const sizeGroup = variantData.groups.find(g => g.type === 'size');
+      if (sizeGroup) {
+        const selectedSize = selectedVariants['size'];
+        const option = sizeGroup.options.find(o => o.value === selectedSize);
+        return option?.priceCents || sizeGroup.options[0]?.priceCents || product.priceCents;
+      }
+    }
+
+    return product.priceCents;
+  }, [variantData, selectedVariants, product]);
+
+  // Initialize default variant selections
+  useEffect(() => {
+    if (!variantData) return;
+
+    const defaults: Record<string, string> = {};
+    
+    if (variantData.type === 'size' && variantData.options?.[0]) {
+      defaults['size'] = variantData.options[0].value;
+    }
+    
+    if (variantData.type === 'multi' && variantData.groups) {
+      variantData.groups.forEach(group => {
+        if (group.options?.[0]) {
+          defaults[group.type] = group.options[0].value;
+        }
+      });
+    }
+
+    setSelectedVariants(defaults);
+  }, [variantData]);
 
   // Fetch product by slug
   useEffect(() => {
     const fetchProduct = async () => {
       try {
         const response = await api.products.getBySlug(params.slug);
-        // Transform API product to match expected type with all required properties
         const transformedProduct = {
           id: response.id,
           name: response.name,
@@ -48,7 +123,7 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
           category: response.category || 'Uncategorized',
           stock: response.stock || 0,
           features: (response as any).features || [
-            'High quality materials',
+            'Premium quality materials',
             'Carefully crafted',
             'Beautiful design'
           ]
@@ -56,7 +131,6 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
         setProduct(transformedProduct);
       } catch (error) {
         console.error('Failed to fetch product:', error);
-        // Keep null state if product not found
       } finally {
         setIsLoading(false);
       }
@@ -65,13 +139,25 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
     fetchProduct();
   }, [params.slug]);
 
+  // Build variant label for cart
+  const getVariantLabel = () => {
+    if (!variantData || Object.keys(selectedVariants).length === 0) return '';
+    return Object.entries(selectedVariants)
+      .map(([key, value]) => `${value}`)
+      .join(' / ');
+  };
+
   const handleAddToCart = () => {
+    const variantLabel = getVariantLabel();
+    const cartItemId = variantLabel ? `${product.id}-${variantLabel}` : product.id;
+    const cartItemName = variantLabel ? `${product.name} (${variantLabel})` : product.name;
+
     for (let i = 0; i < quantity; i++) {
       addItem({
-        id: product.id,
-        name: product.name,
+        id: cartItemId,
+        name: cartItemName,
         slug: product.slug,
-        priceCents: product.priceCents,
+        priceCents: currentPrice,
         imageUrl: product.mainImageUrl,
       });
     }
@@ -80,7 +166,7 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
   };
 
   const discount = product?.compareAtPriceCents
-    ? Math.round((1 - product.priceCents / product.compareAtPriceCents) * 100)
+    ? Math.round((1 - currentPrice / product.compareAtPriceCents) * 100)
     : 0;
 
   if (isLoading) {
@@ -179,7 +265,7 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
 
             {/* Price */}
             <div className="flex items-baseline gap-3 mb-6">
-              <span className="text-3xl font-bold text-brand-600">{formatPrice(product.priceCents)}</span>
+              <span className="text-3xl font-bold text-brand-600">{formatPrice(currentPrice)}</span>
               {product.compareAtPriceCents && (
                 <span className="text-xl text-gray-400 line-through">
                   {formatPrice(product.compareAtPriceCents)}
@@ -188,6 +274,71 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
             </div>
 
             <p className="text-gray-600 mb-6">{product.description}</p>
+
+            {/* Variant Selectors */}
+            {variantData && (
+              <div className="mb-6 space-y-4">
+                {/* Single variant type (e.g., size only for Bundles) */}
+                {variantData.type === 'size' && variantData.options && (
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-900 mb-3">
+                      Select Length
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {variantData.options.map((option) => (
+                        <button
+                          key={option.value}
+                          onClick={() => setSelectedVariants({ ...selectedVariants, size: option.value })}
+                          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all border-2 ${
+                            selectedVariants['size'] === option.value
+                              ? 'border-pink-500 bg-pink-50 text-pink-700'
+                              : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                          }`}
+                        >
+                          {option.label}
+                          <span className="block text-xs mt-0.5 text-gray-500">
+                            {formatPrice(option.priceCents || 0)}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Multi variant type (e.g., texture + size for Frontals) */}
+                {variantData.type === 'multi' && variantData.groups && (
+                  <>
+                    {variantData.groups.map((group) => (
+                      <div key={group.type}>
+                        <label className="block text-sm font-semibold text-gray-900 mb-3">
+                          Select {group.label}
+                        </label>
+                        <div className="flex flex-wrap gap-2">
+                          {group.options.map((option) => (
+                            <button
+                              key={option.value}
+                              onClick={() => setSelectedVariants({ ...selectedVariants, [group.type]: option.value })}
+                              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all border-2 ${
+                                selectedVariants[group.type] === option.value
+                                  ? 'border-pink-500 bg-pink-50 text-pink-700'
+                                  : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                              }`}
+                            >
+                              {option.label}
+                              {option.priceCents && (
+                                <span className="block text-xs mt-0.5 text-gray-500">
+                                  {formatPrice(option.priceCents)}
+                                </span>
+                              )}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </>
+                )}
+              </div>
+            )}
 
             {/* Features */}
             <div className="mb-6">
