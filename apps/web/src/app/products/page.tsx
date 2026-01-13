@@ -126,14 +126,6 @@ export default function ProductsPage() {
             ))}
           </div>
 
-          {/* Mobile Filter Toggle */}
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className="lg:hidden flex items-center justify-center gap-2 px-6 py-3 border border-gray-200 rounded-full"
-          >
-            <SlidersHorizontal className="h-5 w-5" />
-            Filters
-          </button>
         </div>
 
         {/* Hair Extensions Sub-Categories */}
