@@ -80,10 +80,11 @@ export const api = {
       }),
   },
   products: {
-    getAll: (params?: { category?: string; search?: string }) => {
+    getAll: (params?: { category?: string; search?: string; limit?: number }) => {
       const searchParams = new URLSearchParams();
       if (params?.category) searchParams.set('category', params.category);
       if (params?.search) searchParams.set('search', params.search);
+      if (params?.limit) searchParams.set('limit', params.limit.toString());
       searchParams.set('isActive', 'true');
       return fetchAPI<{ products: Product[]; total: number }>(
         `/api/products?${searchParams.toString()}`

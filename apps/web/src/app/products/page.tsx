@@ -7,13 +7,26 @@ import { ProductCard } from '@/components/product/product-card';
 import { Button } from '@myglambeauty/ui';
 import { api } from '@/lib/api';
 
-const categories = ['All', 'Lashes', 'Accessories', 'Hair Extensions', 'Frontals', 'Closures'];
+// Main category tabs
+const mainCategories = ['All', 'Lashes', 'Accessories', 'Hair Extensions'];
+
+// Hair Extensions sub-categories
+const hairExtensionCategories = ['Bundles', 'Frontals', 'Closures'];
+
+// Subcategory filters
+const subcategoryFilters: Record<string, string[]> = {
+  'Bundles': ['All', 'Straight', 'Body Wave', 'Curly'],
+  'Frontals': ['All', '13x4 Transparent', '13x4 HD', '13x6 Transparent', '13x6 HD'],
+  'Closures': ['All'],
+};
 
 export default function ProductsPage() {
   const [allProducts, setAllProducts] = useState([]);
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedHairCategory, setSelectedHairCategory] = useState('Bundles');
+  const [selectedSubcategory, setSelectedSubcategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
 
@@ -22,8 +35,7 @@ export default function ProductsPage() {
     const fetchProducts = async () => {
       setIsLoading(true);
       try {
-        const response = await api.products.getAll();
-        // Transform API products to match frontend expected type
+        const response = await api.products.getAll({ limit: 200 });
         const apiProducts = (response.products || []).map(product => ({
           id: product.id,
           name: product.name,
@@ -38,7 +50,6 @@ export default function ProductsPage() {
         setProducts(apiProducts);
       } catch (error) {
         console.error('Failed to fetch products:', error);
-        // Keep empty state if API fails
         setAllProducts([]);
         setProducts([]);
       } finally {
@@ -49,11 +60,21 @@ export default function ProductsPage() {
     fetchProducts();
   }, []);
 
-  // Filter products based on category and search
+  // Filter products based on category, subcategory, and search
   useEffect(() => {
     let filtered = allProducts;
 
-    if (selectedCategory !== 'All') {
+    if (selectedCategory === 'Hair Extensions') {
+      // Filter by hair extension sub-category (Bundles, Frontals, Closures)
+      filtered = filtered.filter((p: any) => p.category === selectedHairCategory);
+      
+      // Filter by subcategory if not "All"
+      if (selectedSubcategory !== 'All') {
+        filtered = filtered.filter((p: any) => 
+          p.tags.some((t: string) => t === `subcat:${selectedSubcategory}`)
+        );
+      }
+    } else if (selectedCategory !== 'All') {
       filtered = filtered.filter((p: any) => p.category === selectedCategory);
     }
 
@@ -67,7 +88,12 @@ export default function ProductsPage() {
     }
 
     setProducts(filtered);
-  }, [allProducts, selectedCategory, searchQuery]);
+  }, [allProducts, selectedCategory, selectedHairCategory, selectedSubcategory, searchQuery]);
+
+  // Reset subcategory when hair category changes
+  useEffect(() => {
+    setSelectedSubcategory('All');
+  }, [selectedHairCategory]);
 
   return (
     <div className="pt-20 lg:pt-24 pb-20">
@@ -104,9 +130,9 @@ export default function ProductsPage() {
             )}
           </div>
 
-          {/* Category Filters */}
+          {/* Main Category Tabs */}
           <div className="flex gap-2 overflow-x-auto pb-2 lg:pb-0">
-            {categories.map((category) => (
+            {mainCategories.map((category) => (
               <button
                 key={category}
                 onClick={() => setSelectedCategory(category)}
@@ -130,6 +156,47 @@ export default function ProductsPage() {
             Filters
           </button>
         </div>
+
+        {/* Hair Extensions Sub-Categories */}
+        {selectedCategory === 'Hair Extensions' && (
+          <div className="mb-6 space-y-4">
+            {/* Bundles / Frontals / Closures tabs */}
+            <div className="flex gap-2 overflow-x-auto pb-2">
+              {hairExtensionCategories.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedHairCategory(cat)}
+                  className={`px-5 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+                    selectedHairCategory === cat
+                      ? 'bg-pink-500 text-white'
+                      : 'bg-pink-50 text-pink-700 hover:bg-pink-100'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+
+            {/* Subcategory filters (Straight, Body Wave, etc.) */}
+            {subcategoryFilters[selectedHairCategory]?.length > 1 && (
+              <div className="flex gap-2 overflow-x-auto pb-2">
+                {subcategoryFilters[selectedHairCategory].map((sub) => (
+                  <button
+                    key={sub}
+                    onClick={() => setSelectedSubcategory(sub)}
+                    className={`px-4 py-2 rounded-md text-xs font-medium whitespace-nowrap transition-colors border ${
+                      selectedSubcategory === sub
+                        ? 'bg-gray-900 text-white border-gray-900'
+                        : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400'
+                    }`}
+                  >
+                    {sub}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Results Count */}
         <p className="text-gray-500 mb-6">
