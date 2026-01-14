@@ -5,6 +5,8 @@ import { AppError } from '../../middleware/errorHandler';
 interface CartItem {
   productId: string;
   quantity: number;
+  variantLabel?: string;
+  unitPriceCents?: number; // Price from frontend for variant-specific pricing
 }
 
 interface CheckoutData {
@@ -32,12 +34,19 @@ export class OrderService {
       if (product.stock < item.quantity) {
         throw new AppError(`Insufficient stock for ${product.name}`, 400);
       }
+      
+      // Use variant-specific price if provided, otherwise use base product price
+      const unitPrice = item.unitPriceCents || product.priceCents;
+      const productName = item.variantLabel 
+        ? `${product.name} (${item.variantLabel})`
+        : product.name;
+      
       return {
         productId: product.id,
-        productName: product.name,
+        productName,
         quantity: item.quantity,
-        unitPriceCents: product.priceCents,
-        totalCents: product.priceCents * item.quantity,
+        unitPriceCents: unitPrice,
+        totalCents: unitPrice * item.quantity,
       };
     });
 

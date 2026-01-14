@@ -37,8 +37,10 @@ export default function CartPage() {
         },
         body: JSON.stringify({
           items: items.map(item => ({
-            productId: item.id,
+            productId: item.productId || item.id, // Use productId for variants, fallback to id
             quantity: item.quantity,
+            variantLabel: item.variantLabel,
+            unitPriceCents: item.priceCents, // Send the variant-specific price
           })),
           customerEmail: user?.email || '',
           customerName: user?.name || '',

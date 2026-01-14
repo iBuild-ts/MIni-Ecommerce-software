@@ -3,11 +3,13 @@ import { persist } from 'zustand/middleware';
 
 interface CartItem {
   id: string;
+  productId: string; // Original database product ID for checkout
   name: string;
   slug: string;
   priceCents: number;
   quantity: number;
   imageUrl?: string;
+  variantLabel?: string; // e.g., "14"" or "Straight / 16""
 }
 
 interface CartStore {

@@ -155,10 +155,12 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
     for (let i = 0; i < quantity; i++) {
       addItem({
         id: cartItemId,
+        productId: product.id, // Original database ID for checkout
         name: cartItemName,
         slug: product.slug,
         priceCents: currentPrice,
         imageUrl: product.mainImageUrl,
+        variantLabel: variantLabel || undefined,
       });
     }
     setIsAdded(true);
@@ -230,7 +232,7 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
 
             {/* Thumbnails */}
             <div className="flex gap-3">
-              {product.galleryImages.map((image, index) => (
+              {product.galleryImages.map((image: { id: string; url: string; alt?: string }, index: number) => (
                 <button
                   key={image.id}
                   onClick={() => setSelectedImage(index)}
@@ -344,7 +346,7 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
             <div className="mb-6">
               <h3 className="font-semibold text-gray-900 mb-3">Features</h3>
               <ul className="grid grid-cols-2 gap-2">
-                {product.features.map((feature, i) => (
+                {product.features.map((feature: string, i: number) => (
                   <li key={i} className="flex items-center gap-2 text-sm text-gray-600">
                     <Check className="h-4 w-4 text-green-500" />
                     {feature}
