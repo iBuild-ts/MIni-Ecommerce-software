@@ -47,7 +47,42 @@ export class ProductController {
 
   async update(req: Request, res: Response, next: NextFunction) {
     try {
-      const product = await productService.update(req.params.id, req.body);
+      // Parse FormData fields - convert strings to proper types
+      const data: any = {};
+      
+      if (req.body.name) data.name = req.body.name;
+      if (req.body.slug) data.slug = req.body.slug;
+      if (req.body.sku) data.sku = req.body.sku;
+      if (req.body.description) data.description = req.body.description;
+      if (req.body.category) data.category = req.body.category;
+      if (req.body.status) data.isActive = req.body.status === 'active';
+      
+      // Parse numeric fields
+      if (req.body.priceCents) {
+        data.priceCents = parseInt(req.body.priceCents, 10);
+      }
+      if (req.body.compareAtPriceCents && req.body.compareAtPriceCents !== '') {
+        data.compareAtPriceCents = parseInt(req.body.compareAtPriceCents, 10);
+      }
+      if (req.body.stock) {
+        data.stock = parseInt(req.body.stock, 10);
+      }
+      
+      // Parse tags (comes as JSON string from FormData)
+      if (req.body.tags) {
+        try {
+          data.tags = typeof req.body.tags === 'string' ? JSON.parse(req.body.tags) : req.body.tags;
+        } catch {
+          data.tags = req.body.tags;
+        }
+      }
+      
+      // Handle mainImageUrl if provided
+      if (req.body.mainImageUrl) {
+        data.mainImageUrl = req.body.mainImageUrl;
+      }
+
+      const product = await productService.update(req.params.id, data);
       res.json(product);
     } catch (error) {
       next(error);

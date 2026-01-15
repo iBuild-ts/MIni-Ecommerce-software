@@ -2,11 +2,17 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Save, X, Upload } from 'lucide-react';
+import { ArrowLeft, Save, X, Upload, Plus, Star, Trash2 } from 'lucide-react';
 import { Button, formatPrice } from '@myglambeauty/ui';
 import Image from 'next/image';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+
+interface ProductImage {
+  id: string;
+  url: string;
+  alt?: string;
+}
 
 interface Product {
   id: string;
@@ -20,6 +26,7 @@ interface Product {
   stock: number;
   tags: string[];
   mainImageUrl?: string;
+  galleryImages?: ProductImage[];
 }
 
 export default function EditProductPage({ params }: { params: { id: string } }) {
@@ -38,8 +45,12 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
     status: 'active',
     stock: '',
     tags: [] as string[],
+    mainImageUrl: '',
   });
 
+  // Image management state
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
+  const [newImageUrl, setNewImageUrl] = useState('');
   const [images, setImages] = useState<File[]>([]);
 
   // Fetch product data
@@ -57,10 +68,25 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
             priceCents: data.priceCents ? (data.priceCents / 100).toString() : '',
             compareAtPriceCents: data.compareAtPriceCents ? (data.compareAtPriceCents / 100).toString() : '',
             category: data.category || '',
-            status: data.status || 'active',
+            status: data.isActive ? 'active' : 'inactive',
             stock: data.stock?.toString() || '',
             tags: data.tags || [],
+            mainImageUrl: data.mainImageUrl || '',
           });
+          
+          // Load all images (main + gallery) into imageUrls
+          const allImages: string[] = [];
+          if (data.mainImageUrl) {
+            allImages.push(data.mainImageUrl);
+          }
+          if (data.galleryImages && data.galleryImages.length > 0) {
+            data.galleryImages.forEach((img: ProductImage) => {
+              if (img.url && !allImages.includes(img.url)) {
+                allImages.push(img.url);
+              }
+            });
+          }
+          setImageUrls(allImages);
         } else {
           alert('Product not found');
           router.push('/products');
@@ -97,6 +123,11 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
       productData.append('stock', formData.stock);
       productData.append('tags', JSON.stringify(formData.tags));
       
+      // Add main image URL
+      if (formData.mainImageUrl) {
+        productData.append('mainImageUrl', formData.mainImageUrl);
+      }
+      
       // Add images
       images.forEach((image, index) => {
         productData.append('images', image);
@@ -128,6 +159,34 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
 
   const removeImage = (index: number) => {
     setImages(images.filter((_, i) => i !== index));
+  };
+
+  // Add a new image URL to the list
+  const addImageUrl = () => {
+    if (newImageUrl.trim() && !imageUrls.includes(newImageUrl.trim())) {
+      const updatedUrls = [...imageUrls, newImageUrl.trim()];
+      setImageUrls(updatedUrls);
+      // If this is the first image, set it as main
+      if (updatedUrls.length === 1) {
+        setFormData({ ...formData, mainImageUrl: newImageUrl.trim() });
+      }
+      setNewImageUrl('');
+    }
+  };
+
+  // Remove an image URL from the list
+  const removeImageUrl = (urlToRemove: string) => {
+    const updatedUrls = imageUrls.filter(url => url !== urlToRemove);
+    setImageUrls(updatedUrls);
+    // If we removed the main image, set the first remaining as main
+    if (formData.mainImageUrl === urlToRemove) {
+      setFormData({ ...formData, mainImageUrl: updatedUrls[0] || '' });
+    }
+  };
+
+  // Set an image as the cover/main image
+  const setAsCover = (url: string) => {
+    setFormData({ ...formData, mainImageUrl: url });
   };
 
   const addTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -297,6 +356,9 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
                 <option value="">Select category</option>
                 <option value="Lashes">Lashes</option>
                 <option value="Accessories">Accessories</option>
+                <option value="Bundles">Hair Extensions - Bundles</option>
+                <option value="Frontals">Hair Extensions - Frontals</option>
+                <option value="Closures">Hair Extensions - Closures</option>
                 <option value="Tools">Tools</option>
                 <option value="Other">Other</option>
               </select>
@@ -360,63 +422,99 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
             />
           </div>
 
-          {/* Images */}
+          {/* Product Images */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Product Images
             </label>
-            {product.mainImageUrl && (
-              <div className="mb-4">
-                <p className="text-sm text-gray-500 mb-2">Current Image:</p>
-                <div className="w-32 h-32 bg-gray-100 rounded-lg overflow-hidden relative">
-                  <Image
-                    src={product.mainImageUrl}
-                    alt={product.name}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
+            <p className="text-sm text-gray-500 mb-4">
+              Add image URLs and click the star to set as cover image. The cover image will be shown on product listings.
+            </p>
+            
+            {/* Add new image URL */}
+            <div className="flex gap-2 mb-4">
+              <input
+                type="text"
+                value={newImageUrl}
+                onChange={(e) => setNewImageUrl(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && addImageUrl()}
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
+                placeholder="Paste image URL here..."
+              />
+              <Button
+                type="button"
+                onClick={addImageUrl}
+                className="bg-brand-600 hover:bg-brand-700"
+              >
+                <Plus className="h-4 w-4 mr-1" />
+                Add
+              </Button>
+            </div>
+
+            {/* Image Gallery */}
+            {imageUrls.length > 0 ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {imageUrls.map((url, index) => {
+                  const isCover = formData.mainImageUrl === url;
+                  return (
+                    <div
+                      key={index}
+                      className={`relative group rounded-xl overflow-hidden border-2 transition-all ${
+                        isCover ? 'border-yellow-400 ring-2 ring-yellow-200' : 'border-gray-200 hover:border-brand-300'
+                      }`}
+                    >
+                      <div className="aspect-square relative bg-gray-100">
+                        <Image
+                          src={url}
+                          alt={`Product image ${index + 1}`}
+                          fill
+                          className="object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = 'https://via.placeholder.com/200?text=Invalid+URL';
+                          }}
+                        />
+                      </div>
+                      
+                      {/* Cover badge */}
+                      {isCover && (
+                        <div className="absolute top-2 left-2 bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-1 rounded-full flex items-center gap-1">
+                          <Star className="h-3 w-3 fill-current" />
+                          COVER
+                        </div>
+                      )}
+                      
+                      {/* Action buttons */}
+                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                        {!isCover && (
+                          <button
+                            type="button"
+                            onClick={() => setAsCover(url)}
+                            className="bg-yellow-400 hover:bg-yellow-500 text-yellow-900 p-2 rounded-full transition-colors"
+                            title="Set as cover"
+                          >
+                            <Star className="h-5 w-5" />
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => removeImageUrl(url)}
+                          className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-full transition-colors"
+                          title="Remove image"
+                        >
+                          <Trash2 className="h-5 w-5" />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center">
+                <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-500">No images added yet</p>
+                <p className="text-sm text-gray-400 mt-1">Paste an image URL above to get started</p>
               </div>
             )}
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
-              <div className="text-center">
-                <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <label className="cursor-pointer">
-                  <span className="text-brand-600 hover:text-brand-700 font-medium">
-                    Upload new images
-                  </span>
-                  <input
-                    type="file"
-                    multiple
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    className="hidden"
-                  />
-                </label>
-                <p className="text-gray-500 text-sm mt-1">
-                  PNG, JPG up to 10MB each
-                </p>
-              </div>
-              {images.length > 0 && (
-                <div className="mt-4 grid grid-cols-4 gap-4">
-                  {images.map((image, index) => (
-                    <div key={index} className="relative group">
-                      <img
-                        src={URL.createObjectURL(image)}
-                        alt={`Upload ${index + 1}`}
-                        className="w-full h-24 object-cover rounded-lg"
-                      />
-                      <button
-                        onClick={() => removeImage(index)}
-                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
           </div>
         </div>
       </div>
