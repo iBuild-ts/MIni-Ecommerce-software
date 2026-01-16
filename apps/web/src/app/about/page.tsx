@@ -36,16 +36,16 @@ export default function AboutPage() {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.2 }}
-                className="relative h-[500px] md:h-auto"
+                className="relative min-h-[500px] md:min-h-[600px]"
               >
                 <Image
                   src="https://image2url.com/r2/default/images/1768520505271-2cf62dd1-2547-4f2c-83f6-7bdbbad2a02c.jpg"
                   alt="Laetitia - Owner of My Glam Beauty Supply"
                   fill
-                  className="object-cover"
+                  className="object-cover object-top"
                   priority
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
               </motion.div>
               
               {/* Owner Bio */}

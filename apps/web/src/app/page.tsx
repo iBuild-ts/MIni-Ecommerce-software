@@ -231,10 +231,10 @@ export default function HomePage() {
             >
               <div className="aspect-[4/5] rounded-3xl overflow-hidden">
                 <Image
-                  src="https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800"
-                  alt="About MYGlamBeauty"
+                  src="https://image2url.com/r2/default/images/1768520505271-2cf62dd1-2547-4f2c-83f6-7bdbbad2a02c.jpg"
+                  alt="Laetitia - Owner of My Glam Beauty Supply"
                   fill
-                  className="object-cover"
+                  className="object-cover object-top"
                 />
               </div>
               <div className="absolute -bottom-6 -right-6 bg-gradient-to-r from-brand-500 to-brand-600 text-white rounded-2xl p-6 shadow-xl">
@@ -248,19 +248,20 @@ export default function HomePage() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
             >
-              <span className="text-brand-500 font-medium">Our Story</span>
+              <span className="text-brand-500 font-medium">Meet Laetitia</span>
               <h2 className="font-display text-3xl lg:text-4xl font-bold text-gray-900 mt-2 mb-6">
-                Handcrafted with Love for Every Queen
+                The Heart Behind My Glam Beauty Supply
               </h2>
               <p className="text-gray-600 mb-6">
-                At MYGlamBeauty Supply, we believe every woman deserves to feel like royalty. 
-                Our journey began with a simple mission: to create luxury lashes that are not only 
-                beautiful but also comfortable, long-lasting, and cruelty-free.
+                Laetitia started My Glam with one clear mission: to make beauty affordable, 
+                accessible, and empowering for women everywhere. She believes every woman 
+                deserves to feel confident, glamorous, and seen—without breaking the bank.
               </p>
               <p className="text-gray-600 mb-8">
-                Each pair of lashes is meticulously handcrafted by skilled artisans, ensuring 
-                the highest quality and attention to detail. From natural everyday looks to 
-                dramatic statement styles, we have the perfect lashes for every occasion.
+                Specializing in high-quality hair extensions, weaving, lashes, and premium 
+                beauty products, Laetitia carefully curates every item to ensure top-tier 
+                quality, style, and value. Her passion goes beyond products—it's about 
+                creating an experience where women can step into their glow.
               </p>
               <Link href="/about">
                 <Button variant="gold">
