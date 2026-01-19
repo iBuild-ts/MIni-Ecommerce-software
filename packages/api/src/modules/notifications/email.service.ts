@@ -18,7 +18,7 @@ interface EmailOptions {
 }
 
 class EmailService {
-  private transporter: nodemailer.Transporter;
+  private transporter: nodemailer.Transporter | null = null;
   private isConfigured: boolean = false;
 
   constructor() {
@@ -43,7 +43,7 @@ class EmailService {
       },
     };
 
-    this.transporter = nodemailer.createTransporter(config);
+    this.transporter = nodemailer.createTransport(config);
     this.isConfigured = true;
   }
 
@@ -62,7 +62,7 @@ class EmailService {
     }
 
     try {
-      const result = await this.transporter.sendMail({
+      const result = await this.transporter!.sendMail({
         from: process.env.SMTP_FROM || 'noreply@myglambeauty.com',
         to: options.to,
         subject: options.subject,

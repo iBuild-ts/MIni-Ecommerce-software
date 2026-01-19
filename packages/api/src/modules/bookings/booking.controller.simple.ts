@@ -222,8 +222,10 @@ export class SimpleBookingController {
       let filteredBookings = bookings;
       
       if (start && end) {
+        const startStr = String(start);
+        const endStr = String(end);
         filteredBookings = bookings.filter(b => 
-          b.date >= start as string && b.date <= end as string
+          b.date >= startStr && b.date <= endStr
         );
       }
 
