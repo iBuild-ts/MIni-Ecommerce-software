@@ -76,7 +76,7 @@ export class ProductService {
     }
 
     return prisma.product.create({
-      data,
+      data: data as any,
       include: { galleryImages: true },
     });
   }

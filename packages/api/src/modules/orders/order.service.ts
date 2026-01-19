@@ -1,6 +1,8 @@
-import { prisma, OrderStatus } from '@myglambeauty/db';
+import { prisma } from '@myglambeauty/db';
 import { stripe } from '../../config/stripe';
 import { AppError } from '../../middleware/errorHandler';
+
+type OrderStatus = 'PENDING' | 'PAID' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED' | 'REFUNDED';
 
 interface CartItem {
   productId: string;

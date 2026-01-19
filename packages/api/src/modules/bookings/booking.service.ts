@@ -1,5 +1,7 @@
-import { prisma, BookingStatus } from '@myglambeauty/db';
+import { prisma } from '@myglambeauty/db';
 import { AppError } from '../../middleware/errorHandler';
+
+type BookingStatus = 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED' | 'NO_SHOW';
 import { emailService } from '../notifications/email.service';
 
 export class BookingService {
