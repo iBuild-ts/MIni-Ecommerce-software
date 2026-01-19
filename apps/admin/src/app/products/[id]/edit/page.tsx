@@ -109,6 +109,13 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
       return;
     }
 
+    // Validate price
+    const priceValue = parseFloat(formData.priceCents);
+    if (isNaN(priceValue) || priceValue < 0) {
+      alert('Please enter a valid price');
+      return;
+    }
+
     setIsSaving(true);
     try {
       // Create FormData for file upload
@@ -116,12 +123,17 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
       productData.append('name', formData.name);
       productData.append('sku', formData.sku);
       productData.append('description', formData.description);
-      productData.append('priceCents', Math.round(parseFloat(formData.priceCents) * 100).toString());
-      productData.append('compareAtPriceCents', formData.compareAtPriceCents ? Math.round(parseFloat(formData.compareAtPriceCents) * 100).toString() : '');
+      productData.append('priceCents', Math.round(priceValue * 100).toString());
+      if (formData.compareAtPriceCents) {
+        const comparePrice = parseFloat(formData.compareAtPriceCents);
+        if (!isNaN(comparePrice) && comparePrice > 0) {
+          productData.append('compareAtPriceCents', Math.round(comparePrice * 100).toString());
+        }
+      }
       productData.append('category', formData.category);
       productData.append('status', formData.status);
-      productData.append('stock', formData.stock);
-      productData.append('tags', JSON.stringify(formData.tags));
+      productData.append('stock', formData.stock || '0');
+      productData.append('tags', JSON.stringify(formData.tags || []));
       
       // Add main image URL
       if (formData.mainImageUrl) {
@@ -142,11 +154,13 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
         alert('Product updated successfully!');
         router.push('/products');
       } else {
-        throw new Error('Failed to update product');
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Update error response:', errorData);
+        throw new Error(errorData.message || 'Failed to update product');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating product:', error);
-      alert('Failed to update product. Please try again.');
+      alert(error.message || 'Failed to update product. Please try again.');
     } finally {
       setIsSaving(false);
     }
