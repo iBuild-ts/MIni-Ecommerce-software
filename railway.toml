@@ -1,6 +1,6 @@
 [build]
 builder = "nixpacks"
-buildCommand = "pnpm install && pnpm --filter @myglambeauty/db build && pnpm --filter @myglambeauty/api build"
+buildCommand = "pnpm install && cd packages/db && npx prisma generate && cd ../.. && pnpm --filter @myglambeauty/db build && pnpm --filter @myglambeauty/api build"
 
 [deploy]
 startCommand = "node packages/api/dist/index.js"
