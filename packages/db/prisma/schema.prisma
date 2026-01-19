@@ -26,12 +26,13 @@ enum UserRole {
 }
 
 model Product {
-  id            String         @id @default(cuid())
-  name          String
-  slug          String         @unique
-  description   String
-  priceCents    Int
-  currency      String         @default("usd")
+  id                   String         @id @default(cuid())
+  name                 String
+  slug                 String         @unique
+  description          String
+  priceCents           Int
+  compareAtPriceCents  Int?
+  currency             String         @default("usd")
   isActive      Boolean        @default(true)
   stock         Int            @default(0)
   sku           String?        @unique
