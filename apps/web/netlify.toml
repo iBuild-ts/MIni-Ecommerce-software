@@ -1,0 +1,10 @@
+[build]
+  command = "cd ../.. && pnpm install && pnpm turbo run build --filter=@myglambeauty/web"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "20"
+  NPM_FLAGS = "--prefix=/dev/null"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
