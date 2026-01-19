@@ -96,6 +96,16 @@ export class ProductService {
       }
     }
 
+    // Check SKU uniqueness if being changed
+    if (data.sku && data.sku !== product.sku) {
+      const existingSku = await prisma.product.findFirst({
+        where: { sku: data.sku, id: { not: id } },
+      });
+      if (existingSku) {
+        throw new AppError('Product with this SKU already exists', 400);
+      }
+    }
+
     return prisma.product.update({
       where: { id },
       data,
