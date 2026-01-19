@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Plus, Search, Edit, Trash2, Eye, MoreVertical, Package } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Eye, Copy, Package } from 'lucide-react';
 import { Button, Badge, formatPrice } from '@myglambeauty/ui';
 import { useRouter } from 'next/navigation';
 
@@ -95,6 +95,25 @@ export default function ProductsPage() {
       // Still remove from local state for demo
       setProducts(products.filter((p: any) => p.id !== productId));
       alert('Product deleted from local view!');
+    }
+  };
+
+  const handleDuplicateProduct = async (productId: string) => {
+    try {
+      const response = await fetch(`${API_URL}/api/products/${productId}/duplicate`, {
+        method: 'POST',
+      });
+      if (response.ok) {
+        const duplicated = await response.json();
+        setProducts([duplicated, ...products] as any);
+        alert('Product duplicated! Edit it to customize.');
+        router.push(`/products/${duplicated.id}/edit`);
+      } else {
+        alert('Failed to duplicate product');
+      }
+    } catch (error) {
+      console.error('Failed to duplicate:', error);
+      alert('Failed to duplicate product');
     }
   };
 
@@ -225,6 +244,13 @@ export default function ProductsPage() {
                       title="Edit"
                     >
                       <Edit className="h-4 w-4 text-gray-500" />
+                    </button>
+                    <button 
+                      onClick={() => handleDuplicateProduct(product.id)}
+                      className="p-2 hover:bg-blue-50 rounded-lg" 
+                      title="Duplicate"
+                    >
+                      <Copy className="h-4 w-4 text-blue-500" />
                     </button>
                     <button 
                       onClick={() => handleDeleteProduct(product.id)}

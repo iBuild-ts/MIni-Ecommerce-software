@@ -176,6 +176,54 @@ export class ProductService {
 
     return products.map((p) => p.category).filter(Boolean);
   }
+
+  async duplicate(id: string) {
+    const product = await prisma.product.findUnique({
+      where: { id },
+      include: { galleryImages: true },
+    });
+
+    if (!product) {
+      throw new AppError('Product not found', 404);
+    }
+
+    // Generate unique slug and SKU
+    const timestamp = Date.now();
+    const newSlug = `${product.slug}-copy-${timestamp}`;
+    const newSku = `${product.sku}-COPY-${timestamp}`;
+
+    // Create duplicate product
+    const duplicatedProduct = await prisma.product.create({
+      data: {
+        name: `${product.name} (Copy)`,
+        slug: newSlug,
+        sku: newSku,
+        description: product.description,
+        priceCents: product.priceCents,
+        compareAtPriceCents: product.compareAtPriceCents,
+        stock: product.stock,
+        category: product.category,
+        tags: product.tags,
+        mainImageUrl: product.mainImageUrl,
+        isActive: false, // Start as inactive so user can edit before publishing
+      },
+      include: { galleryImages: true },
+    });
+
+    // Duplicate gallery images if any
+    if (product.galleryImages.length > 0) {
+      await prisma.productImage.createMany({
+        data: product.galleryImages.map((img, index) => ({
+          productId: duplicatedProduct.id,
+          url: img.url,
+          alt: img.alt,
+          sortOrder: index,
+        })),
+      });
+    }
+
+    return duplicatedProduct;
+  }
 }
 
 export const productService = new ProductService();

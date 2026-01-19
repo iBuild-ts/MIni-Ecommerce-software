@@ -40,6 +40,9 @@ router.delete(
   productController.delete.bind(productController)
 );
 
+// Duplicate product
+router.post('/:id/duplicate', productController.duplicate.bind(productController));
+
 // Image management
 router.post('/:id/images', productController.addImage.bind(productController));
 router.delete('/images/:imageId', productController.removeImage.bind(productController));

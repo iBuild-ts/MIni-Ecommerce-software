@@ -135,6 +135,15 @@ export class ProductController {
       next(error);
     }
   }
+
+  async duplicate(req: Request, res: Response, next: NextFunction) {
+    try {
+      const product = await productService.duplicate(req.params.id);
+      res.status(201).json(product);
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export const productController = new ProductController();
