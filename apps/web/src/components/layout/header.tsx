@@ -44,7 +44,7 @@ export function Header() {
 
   const navLinks = [
     { href: '/', label: 'Home' },
-    { href: '/products', label: 'Shop' },
+    { href: '/products', label: 'Hair/Wig' },
     { href: '/products?category=Lashes', label: 'Lashes' },
     { href: '/products?category=Accessories', label: 'Accessories' },
     { href: '/booking', label: 'Book Appointment' },
