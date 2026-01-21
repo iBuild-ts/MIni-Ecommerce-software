@@ -25,6 +25,7 @@ export function ProductCard({ product }: ProductCardProps) {
     e.preventDefault();
     addItem({
       id: product.id,
+      productId: product.id,
       name: product.name,
       slug: product.slug,
       priceCents: product.priceCents,

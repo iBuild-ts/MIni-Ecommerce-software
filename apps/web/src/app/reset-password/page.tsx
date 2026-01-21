@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { Lock, Eye, EyeOff, ArrowRight, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
@@ -8,7 +8,7 @@ import { useSearchParams } from 'next/navigation';
 import { Button, Input } from '@myglambeauty/ui';
 import { api } from '@/lib/api';
 
-export default function ResetPasswordPage() {
+function ResetPasswordContent() {
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
   
@@ -226,5 +226,17 @@ export default function ResetPasswordPage() {
         </motion.div>
       </motion.div>
     </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-500"></div>
+      </div>
+    }>
+      <ResetPasswordContent />
+    </Suspense>
   );
 }
