@@ -7,6 +7,16 @@ import { ProductCard } from '@/components/product/product-card';
 import { Button } from '@myglambeauty/ui';
 import { api } from '@/lib/api';
 
+interface Product {
+  id: string;
+  name: string;
+  slug: string;
+  priceCents: number;
+  mainImageUrl: string;
+  tags: string[];
+  category: string;
+}
+
 // Main category tabs
 const mainCategories = ['All', 'Lashes', 'Accessories', 'Hair Extensions'];
 
@@ -14,8 +24,8 @@ const mainCategories = ['All', 'Lashes', 'Accessories', 'Hair Extensions'];
 const hairExtensionCategories = ['Bundles', 'Frontals', 'Closures'];
 
 export default function ProductsPage() {
-  const [allProducts, setAllProducts] = useState([]);
-  const [products, setProducts] = useState([]);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedHairCategory, setSelectedHairCategory] = useState('Bundles');
@@ -57,17 +67,17 @@ export default function ProductsPage() {
 
     if (selectedCategory === 'Hair Extensions') {
       // Filter by hair extension sub-category (Bundles, Frontals, Closures)
-      filtered = filtered.filter((p: any) => p.category === selectedHairCategory);
+      filtered = filtered.filter((p) => p.category === selectedHairCategory);
     } else if (selectedCategory !== 'All') {
-      filtered = filtered.filter((p: any) => p.category === selectedCategory);
+      filtered = filtered.filter((p) => p.category === selectedCategory);
     }
 
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(
-        (p: any) =>
+        (p) =>
           p.name.toLowerCase().includes(query) ||
-          p.tags.some((t: string) => t.toLowerCase().includes(query))
+          p.tags.some((t) => t.toLowerCase().includes(query))
       );
     }
 
