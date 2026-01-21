@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: myglambeauty-api
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: pnpm install && cd packages/db && npx prisma generate && cd ../.. && pnpm --filter @myglambeauty/db build && pnpm --filter @myglambeauty/api build
+    startCommand: node packages/api/dist/index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
