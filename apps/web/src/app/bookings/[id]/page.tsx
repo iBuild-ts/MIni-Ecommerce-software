@@ -316,7 +316,7 @@ export default function BookingDetailsPage() {
               )}
             </div>
             {booking.status !== 'completed' && booking.status !== 'cancelled' && (
-              <Button variant="destructive" onClick={handleCancel}>
+              <Button variant="outline" className="text-red-600 border-red-600 hover:bg-red-50" onClick={handleCancel}>
                 Cancel Appointment
               </Button>
             )}
