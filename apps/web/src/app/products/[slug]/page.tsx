@@ -67,12 +67,22 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
     }
 
     if (variantData.type === 'multi' && variantData.groups) {
-      const sizeGroup = variantData.groups.find(g => g.type === 'size');
-      if (sizeGroup) {
-        const selectedSize = selectedVariants['size'];
-        const option = sizeGroup.options.find(o => o.value === selectedSize);
-        return option?.priceCents || sizeGroup.options[0]?.priceCents || product.priceCents;
+      let total = product.priceCents;
+
+      for (const group of variantData.groups) {
+        const selectedValue = selectedVariants[group.type] || group.options?.[0]?.value;
+        const option = group.options.find((o) => o.value === selectedValue);
+
+        if (!option || option.priceCents == null) continue;
+
+        if (group.type === 'size') {
+          total = option.priceCents;
+        } else {
+          total += option.priceCents;
+        }
       }
+
+      return total;
     }
 
     return product.priceCents;
