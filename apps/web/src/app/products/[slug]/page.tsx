@@ -310,9 +310,11 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
                           }`}
                         >
                           {option.label}
-                          <span className="block text-xs mt-0.5 text-gray-500">
-                            {formatPrice(option.priceCents || 0)}
-                          </span>
+                          {option.priceCents != null && (
+                            <span className="block text-xs mt-0.5 text-gray-500">
+                              {formatPrice(option.priceCents)}
+                            </span>
+                          )}
                         </button>
                       ))}
                     </div>
