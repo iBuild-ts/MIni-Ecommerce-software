@@ -15,6 +15,8 @@ interface ProductCardProps {
     priceCents: number;
     mainImageUrl?: string;
     tags?: string[];
+    variants?: string;
+    category?: string;
   };
 }
 
@@ -38,6 +40,13 @@ export function ProductCard({ product }: ProductCardProps) {
     if (product.tags?.includes('new')) return { text: 'New', color: 'bg-gold-500' };
     if (product.tags?.includes('popular')) return { text: 'Popular', color: 'bg-purple-500' };
     return null;
+  };
+
+  const getWigPriceDisplay = () => {
+    if (product.variants && product.category === 'Wigs') {
+      return 'From ' + formatPrice(product.priceCents);
+    }
+    return formatPrice(product.priceCents);
   };
 
   const badge = getBadge();
@@ -91,7 +100,7 @@ export function ProductCard({ product }: ProductCardProps) {
             {product.name}
           </h3>
           <p className="mt-1 text-lg font-semibold text-brand-600">
-            {formatPrice(product.priceCents)}
+            {getWigPriceDisplay()}
           </p>
         </div>
       </motion.div>

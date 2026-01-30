@@ -15,13 +15,14 @@ interface Product {
   mainImageUrl: string;
   tags: string[];
   category: string;
+  variants?: string;
 }
 
 // Main category tabs
 const mainCategories = ['All', 'Lashes', 'Accessories', 'Hair Extensions'];
 
 // Hair Extensions sub-categories
-const hairExtensionCategories = ['Bundles', 'Frontals', 'Closures'];
+const hairExtensionCategories = ['Bundles', 'Frontals', 'Closures', 'Wigs'];
 
 // Fallback demo products when API is unavailable
 const demoProducts: Product[] = [
@@ -53,15 +54,22 @@ export default function ProductsPage() {
       setIsLoading(true);
       try {
         const response = await api.products.getAll({ limit: 200 });
-        const apiProducts = (response.products || []).map(product => ({
+        const apiProducts = (response.products || []).map(product => {
+          const tags = product.tags || [];
+          const variantsTag = tags.find((t) => t.startsWith('variants:'));
+          const variants = variantsTag ? variantsTag.slice('variants:'.length) : '';
+
+          return ({
           id: product.id,
           name: product.name,
           slug: product.slug,
           priceCents: product.priceCents,
           mainImageUrl: product.mainImageUrl || 'https://images.unsplash.com/photo-1583001931096-959e9a1a6223?w=800',
-          tags: product.tags || [],
-          category: product.category || 'Uncategorized'
-        }));
+          tags,
+          category: product.category || 'Uncategorized',
+          variants,
+        });
+        });
         
         setAllProducts(apiProducts);
         setProducts(apiProducts);
