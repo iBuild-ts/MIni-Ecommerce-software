@@ -42,8 +42,8 @@ export function ProductCard({ product }: ProductCardProps) {
     return null;
   };
 
-  const getWigPriceDisplay = () => {
-    if (product.variants && product.category === 'Wigs') {
+  const getCardPriceDisplay = () => {
+    if (product.variants) {
       return 'From ' + formatPrice(product.priceCents);
     }
     return formatPrice(product.priceCents);
@@ -100,7 +100,7 @@ export function ProductCard({ product }: ProductCardProps) {
             {product.name}
           </h3>
           <p className="mt-1 text-lg font-semibold text-brand-600">
-            {getWigPriceDisplay()}
+            {getCardPriceDisplay()}
           </p>
         </div>
       </motion.div>
