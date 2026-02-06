@@ -9,36 +9,40 @@ import { ProductCard } from '@/components/product/product-card';
 
 const featuredProducts = [
   {
-    id: '1',
-    name: 'Queen Mink Lashes',
-    slug: 'queen-mink-lashes',
-    priceCents: 2499,
-    mainImageUrl: 'https://images.unsplash.com/photo-1583001931096-959e9a1a6223?w=800',
-    tags: ['bestseller'],
-  },
-  {
-    id: '2',
-    name: 'Princess Faux Mink Set',
-    slug: 'princess-faux-mink-set',
-    priceCents: 3499,
-    mainImageUrl: 'https://images.unsplash.com/photo-1597225244660-1cd128c64284?w=800',
-    tags: ['new'],
-  },
-  {
-    id: '3',
-    name: 'Natural Beauty Lashes',
-    slug: 'natural-beauty-lashes',
-    priceCents: 1499,
-    mainImageUrl: 'https://images.unsplash.com/photo-1512207846876-bb54ef5056fe?w=800',
+    id: "cml16tjy90002ubz10fqbk4wk",
+    name: "Darling Plush Cluster Lashes",
+    slug: "darling-plush-cluster-lashes",
+    priceCents: 1199,
+    mainImageUrl: "https://image2url.com/r2/default/images/1768838788097-f3caa188-fd3c-43ac-90a0-314192c40fed.jpg",
+    category: "Lashes",
     tags: [],
   },
   {
-    id: '4',
-    name: 'Drama Queen Volume Lashes',
-    slug: 'drama-queen-volume-lashes',
-    priceCents: 2999,
-    mainImageUrl: 'https://images.unsplash.com/photo-1588495752527-77d73a9a0b75?w=800',
-    tags: ['popular'],
+    id: "cmkkl6v7e000113bgmlsffaqx",
+    name: "Hair Storage bag w/Hanger (Copy)",
+    slug: "lash-applicator-tool-copy-1768790553884-copy-1768792172664",
+    priceCents: 1299,
+    mainImageUrl: "https://image2url.com/r2/default/images/1768827553533-281a918e-89dd-46b1-887a-96529a50ada7.jpg",
+    category: "Accessories",
+    tags: [],
+  },
+  {
+    id: "cml06sofs00012pq66honk3hn",
+    name: "13x4 Full Frontal HD Lace Wig",
+    slug: "13x4-hd-lace-wig",
+    priceCents: 17900,
+    mainImageUrl: "https://image2url.com/r2/default/images/1769871219959-02376ed9-8538-4113-a3ca-6f6fb6eafd0f.jpg",
+    category: "Wigs",
+    tags: [],
+  },
+  {
+    id: "cmkbx9jw70006124v4cgznreh",
+    name: "13x6 HD Lace Frontal",
+    slug: "13x6-hd-frontal",
+    priceCents: 14000,
+    mainImageUrl: "https://image2url.com/r2/default/images/1769872784686-124bd9ae-930c-4cab-91a6-2298e4df7822.jpg",
+    category: "Frontals",
+    tags: [],
   },
 ];
 
@@ -187,7 +191,7 @@ export default function HomePage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="font-display text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-              Bestselling Lashes
+              Bestselling Products
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
               Our most loved styles, handpicked by queens like you
