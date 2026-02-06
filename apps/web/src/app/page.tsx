@@ -95,7 +95,7 @@ export default function HomePage() {
               <div className="flex flex-wrap gap-4">
                 <Link href="/products">
                   <Button size="lg" className="group">
-                    Shop Collection
+                    Shop Collections
                     <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </Link>
