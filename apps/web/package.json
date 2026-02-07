@@ -14,14 +14,15 @@
   },
   "dependencies": {
     "@myglambeauty/ui": "workspace:*",
-    "@stripe/react-stripe-js": "^2.4.0",
+    "@stripe/react-stripe-js": "^2.9.0",
     "@stripe/stripe-js": "^2.4.0",
-    "framer-motion": "^11.0.3",
+    "framer-motion": "^11.18.2",
     "lucide-react": "^0.312.0",
     "next": "14.1.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "zustand": "^4.5.0"
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "tailwindcss": "^3.4.1",
+    "zustand": "^4.5.7"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.1.5",
@@ -35,7 +36,6 @@
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "postcss": "^8.4.33",
-    "tailwindcss": "^3.4.1",
     "typescript": "^5.3.3"
   }
 }
