@@ -1,0 +1,5 @@
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/mygldctx/public_html
+    - /bin/cp -r /home/mygldctx/repositories/MIni-Ecommerce-software/.next $DEPLOYPATH
+    - /bin/chmod -R 755 $DEPLOYPATH
