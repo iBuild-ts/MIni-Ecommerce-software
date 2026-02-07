@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev -p 3000",
     "build": "next build",
-    "start": "next start",
+    "start": "pnpm --filter \"@myglambeauty/web\" start",
     "lint": "next lint",
     "test": "jest",
     "test:watch": "jest --watch",
