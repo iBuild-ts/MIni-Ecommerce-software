@@ -76,4 +76,9 @@ export const adminApi = {
       return fetchAPI<any[]>(`/api/bookings/calendar?${searchParams.toString()}`);
     },
   },
+  dashboard: {
+    getStats: () => fetchAPI<{ data: { totalBookings: number; totalOrders: number; totalRevenue: number; activeCustomers: number; todayBookings: number; todayRevenue: number; pendingBookings: number; completedBookings: number; monthlyRevenue: number; monthlyGrowth: number; } }>('/api/dashboard/stats'),
+    getRecentBookings: () => fetchAPI<{ data: Booking[] }>('/api/dashboard/recent-bookings'),
+    getRecentOrders: () => fetchAPI<{ data: { id: string; status: string; totalCents: number; createdAt: string; customer: { email: string; firstName?: string; lastName?: string; }; items: Array<{ productName: string; quantity: number; }>; }[]>('/api/dashboard/recent-orders'),
+  },
 };
