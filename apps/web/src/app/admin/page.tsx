@@ -16,11 +16,21 @@ import {
   Phone
 } from 'lucide-react';
 import { Button } from '@myglambeauty/ui';
-import { useAdminDashboard } from '@/hooks/use-admin-dashboard';
 import Link from 'next/link';
 
 export default function AdminDashboardPage() {
-  const { stats, recentBookings, recentOrders, isLoading, error, refreshData } = useAdminDashboard();
+  const stats = {
+    totalOrders: 156,
+    totalRevenue: 45678,
+    activeCustomers: 89,
+    todayRevenue: 1234
+  };
+
+  const recentOrders = [
+    { id: '1', customer: { email: 'customer1@example.com' }, totalCents: 4999, status: 'pending', items: [{ productName: 'HD Lace Frontal' }] },
+    { id: '2', customer: { email: 'customer2@example.com' }, totalCents: 7999, status: 'completed', items: [{ productName: 'Body Wave Bundle' }] },
+    { id: '3', customer: { email: 'customer3@example.com' }, totalCents: 6499, status: 'processing', items: [{ productName: 'Straight Bundle' }] },
+  ];
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -28,26 +38,6 @@ export default function AdminDashboardPage() {
       currency: 'USD',
     }).format(amount);
   };
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-red-500 text-center">
-          <AlertCircle className="h-8 w-8 mx-auto mb-4" />
-          <p>Error loading dashboard data</p>
-          <p className="text-sm">{error}</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gray-50">
