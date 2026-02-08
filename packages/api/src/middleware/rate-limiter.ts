@@ -149,7 +149,8 @@ export const authRateLimit = createRateLimiter({
 
 export const generalRateLimit = createRateLimiter({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  maxRequests: 100, // 100 requests per 15 minutes
+  maxRequests: 1000, // 1000 requests per 15 minutes (increased from 100)
+  message: 'Too many requests, please try again later.',
 });
 
 export const strictRateLimit = createRateLimiter({
