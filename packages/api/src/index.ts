@@ -38,6 +38,9 @@ app.use(cors({
     'http://127.0.0.1:3001',
     'http://127.0.0.1:3002',
     'https://myglambeauty.netlify.app',
+    'https://m-ini-ecommerce-software-ibotfkfen-ibuildts-projects.vercel.app',
+    'https://m-ini-ecommerce-software-e5lllxdga-ibuildts-projects.vercel.app',
+    'https://m-ini-ecommerce-software-ibotfkfen-ibuildts-projects.vercel.app',
   ],
   credentials: true,
 }));
