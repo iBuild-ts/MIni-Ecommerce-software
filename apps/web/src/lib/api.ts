@@ -1,7 +1,10 @@
 const API_URL = 'https://mini-ecommerce-software.onrender.com';
 
 async function fetchAPI<T>(endpoint: string, options?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_URL}${endpoint}`, {
+  const url = `${API_URL}${endpoint}`;
+  console.log('🌍 Fetching from:', url);
+  
+  const res = await fetch(url, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -9,12 +12,18 @@ async function fetchAPI<T>(endpoint: string, options?: RequestInit): Promise<T> 
     },
   });
 
+  console.log('📡 Response status:', res.status);
+  console.log('📡 Response headers:', Object.fromEntries(res.headers.entries()));
+
   if (!res.ok) {
     const error = await res.json().catch(() => ({ error: 'An error occurred' }));
+    console.error('❌ API Error:', error);
     throw new Error(error.error || 'An error occurred');
   }
 
-  return res.json();
+  const data = await res.json();
+  console.log('✅ API Response data:', data);
+  return data;
 }
 
 export interface Product {
