@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Plus, Search, Mail, Send, Calendar, Users, TrendingUp, MoreVertical, Edit, Trash2, Play, Pause } from 'lucide-react';
-import { Button } from '@myglambeauty/ui';
+import { Button } from '@/components/ui/button';
 
 const demoCampaigns = [
   {

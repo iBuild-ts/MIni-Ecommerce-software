@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Search, Plus, Calendar, Clock, User, Mail, Phone, Check, X, AlertCircle } from 'lucide-react';
-import { Button, Badge } from '@myglambeauty/ui';
+import { Button, Badge } from '@/components/ui/button';
 import { adminApi, Booking } from '@/lib/api';
 
 const statusConfig: Record<string, { label: string; variant: 'default' | 'success' | 'warning' | 'danger' | 'secondary' }> = {

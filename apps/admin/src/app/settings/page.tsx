@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Save, Store, Mail, DollarSign, Bell, Shield, Palette, Globe, CreditCard } from 'lucide-react';
-import { Button, Input } from '@myglambeauty/ui';
+import { Button, Input } from '@/components/ui/button';
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState('general');

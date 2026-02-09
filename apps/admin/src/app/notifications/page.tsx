@@ -14,7 +14,7 @@ import {
   AlertCircle,
   RefreshCw
 } from 'lucide-react';
-import { Button } from '@myglambeauty/ui';
+import { Button } from '@/components/ui/button';
 import { useNotifications } from '@/hooks/use-notifications';
 import { useNotificationContext } from '@/hooks/use-notifications';
 import { EmailTest } from '@/components/notifications/notification-toast';

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Brain, MessageSquare, Save, Play, Pause, Plus, Edit, Trash2, TrendingUp, Users, ThumbsUp, ThumbsDown, AlertCircle } from 'lucide-react';
-import { Button, Input } from '@myglambeauty/ui';
+import { Button, Input } from '@/components/ui/button';
 
 const demoTrainingData = [
   {

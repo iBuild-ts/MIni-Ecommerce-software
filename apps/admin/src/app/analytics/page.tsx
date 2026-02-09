@@ -15,7 +15,7 @@ import {
   Filter,
   RefreshCw
 } from 'lucide-react';
-import { Button } from '@myglambeauty/ui';
+import { Button } from '@/components/ui/button';
 
 interface AnalyticsData {
   revenue: {

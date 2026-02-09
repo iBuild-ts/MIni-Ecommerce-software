@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Save, X, Upload, Plus, Star, Trash2 } from 'lucide-react';
-import { Button, formatPrice } from '@myglambeauty/ui';
+import { Button, formatPrice } from '@/components/ui/button';
 import Image from 'next/image';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';

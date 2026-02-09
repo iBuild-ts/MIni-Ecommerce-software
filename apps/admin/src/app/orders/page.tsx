@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Search, Filter, Eye, Package, Truck, CheckCircle, Clock, XCircle } from 'lucide-react';
-import { Button, Badge, formatPrice, formatDateTime } from '@myglambeauty/ui';
+import { Button, Badge, formatPrice, formatDateTime } from '@/components/ui/button';
 
 const demoOrders = [
   { id: 'ORD-001', customer: 'Sarah Johnson', email: 'sarah@email.com', totalCents: 4999, status: 'completed', items: 2, createdAt: '2024-01-15T10:30:00Z' },

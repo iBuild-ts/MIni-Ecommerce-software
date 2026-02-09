@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Save, Eye, Upload, X } from 'lucide-react';
-import { Button, Input } from '@myglambeauty/ui';
+import { Button, Input } from '@/components/ui/button';
 
 export default function NewProductPage() {
   const router = useRouter();
