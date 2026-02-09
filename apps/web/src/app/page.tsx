@@ -134,7 +134,7 @@ export default function HomePage() {
             >
               <div className="relative aspect-square rounded-3xl overflow-hidden shadow-2xl">
                 <Image
-                  src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=800"
+                  src="https://image2url.com/r2/default/images/1770670029179-fb42da77-0024-4da0-9e68-5163b0844cbb.jpg"
                   alt="Luxury lashes"
                   fill
                   className="object-cover"
