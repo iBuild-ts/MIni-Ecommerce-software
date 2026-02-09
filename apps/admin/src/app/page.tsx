@@ -13,14 +13,68 @@ import {
   RefreshCw,
   Eye,
   Mail,
-  Phone
+  Phone,
+  Settings
 } from 'lucide-react';
-import { Button } from '@myglambeauty/ui';
-import { useAdminDashboard } from '@/hooks/use-admin-dashboard';
+import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
 export default function AdminDashboardPage() {
-  const { stats, recentBookings, recentOrders, isLoading, error, refreshData } = useAdminDashboard();
+  // Mock data for now - will be replaced with real API calls
+  const stats = {
+    totalBookings: 156,
+    totalRevenue: 45678,
+    activeCustomers: 89,
+    totalOrders: 234,
+    monthlyGrowth: 12,
+    todayBookings: 8,
+    todayRevenue: 1234,
+    pendingBookings: 12
+  };
+
+  const recentBookings = [
+    {
+      id: '1',
+      service: { name: 'HD Lace Frontal Installation' },
+      customer: { name: 'Sarah Johnson' },
+      date: '2024-02-08',
+      time: '10:00 AM',
+      status: 'confirmed',
+      depositPaid: true
+    },
+    {
+      id: '2',
+      service: { name: 'Hair Coloring' },
+      customer: { name: 'Maria Garcia' },
+      date: '2024-02-08',
+      time: '2:00 PM',
+      status: 'pending',
+      depositPaid: false
+    }
+  ];
+
+  const recentOrders = [
+    {
+      id: 'ORD-001',
+      customer: { firstName: 'John', lastName: 'Smith' },
+      createdAt: '2024-02-08T10:30:00Z',
+      items: [
+        { productName: 'Brazilian Hair Bundle' }
+      ],
+      status: 'PAID',
+      totalCents: 29999
+    },
+    {
+      id: 'ORD-002',
+      customer: { firstName: 'Emily', lastName: 'Davis' },
+      createdAt: '2024-02-08T09:15:00Z',
+      items: [
+        { productName: 'Lace Closure' }
+      ],
+      status: 'SHIPPED',
+      totalCents: 14999
+    }
+  ];
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -49,30 +103,6 @@ export default function AdminDashboardPage() {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-500"></div>
-      </div>
-    );
-  }
-
-  if (error || !stats) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Dashboard Error</h2>
-          <p className="text-gray-600 mb-6">{error || 'Failed to load dashboard data'}</p>
-          <Button onClick={refreshData}>
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Try Again
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -80,11 +110,11 @@ export default function AdminDashboardPage() {
         <div className="px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
+              <h1 className="text-2xl font-bold text-gray-900">MYGlamBeauty Admin Dashboard</h1>
               <p className="text-sm text-gray-600">Welcome back! Here's your business overview.</p>
             </div>
             <div className="flex items-center gap-3">
-              <Button variant="outline" onClick={refreshData}>
+              <Button variant="outline">
                 <RefreshCw className="h-4 w-4 mr-2" />
                 Refresh
               </Button>
@@ -208,7 +238,7 @@ export default function AdminDashboardPage() {
             </div>
             <div className="p-6">
               <div className="space-y-4">
-                {recentBookings.map((booking) => (
+                {recentBookings.map((booking: any) => (
                   <div key={booking.id} className="flex items-center justify-between">
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-900 truncate">
@@ -254,7 +284,7 @@ export default function AdminDashboardPage() {
             </div>
             <div className="p-6">
               <div className="space-y-4">
-                {recentOrders.map((order) => (
+                {recentOrders.map((order: any) => (
                   <div key={order.id} className="flex items-center justify-between">
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-900">
@@ -284,6 +314,44 @@ export default function AdminDashboardPage() {
             </div>
           </motion.div>
         </div>
+
+        {/* Quick Actions */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="mt-8"
+        >
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <Link href="/products/new">
+                <Button variant="outline" className="w-full">
+                  <ShoppingBag className="h-4 w-4 mr-2" />
+                  Add Product
+                </Button>
+              </Link>
+              <Link href="/customers">
+                <Button variant="outline" className="w-full">
+                  <Users className="h-4 w-4 mr-2" />
+                  View Customers
+                </Button>
+              </Link>
+              <Link href="/orders">
+                <Button variant="outline" className="w-full">
+                  <ShoppingBag className="h-4 w-4 mr-2" />
+                  Manage Orders
+                </Button>
+              </Link>
+              <Link href="/settings">
+                <Button variant="outline" className="w-full">
+                  <Settings className="h-4 w-4 mr-2" />
+                  Settings
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </motion.div>
       </div>
     </div>
   );

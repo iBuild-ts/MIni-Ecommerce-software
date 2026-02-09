@@ -58,93 +58,20 @@ export function useAdminDashboard() {
     setError(null);
 
     try {
-      // Mock dashboard data - in real app, these would be API calls
-      const mockStats: DashboardStats = {
-        totalBookings: 156,
-        totalOrders: 89,
-        totalRevenue: 45678,
-        activeCustomers: 234,
-        todayBookings: 8,
-        todayRevenue: 1250,
-        pendingBookings: 12,
-        completedBookings: 134,
-        monthlyRevenue: 12350,
-        monthlyGrowth: 15.3,
-      };
+      // Fetch real dashboard data from API
+      const [statsResponse, bookingsResponse, ordersResponse] = await Promise.all([
+        adminApi.get('/dashboard/stats'),
+        adminApi.get('/dashboard/recent-bookings'),
+        adminApi.get('/dashboard/recent-orders')
+      ]);
 
-      const mockRecentBookings: RecentBooking[] = [
-        {
-          id: 'booking_1',
-          service: {
-            name: 'FALL IN LOVE WITH HAIR *SEW IN* SPECIAL',
-            price: '$249.99',
-          },
-          date: '2024-02-15',
-          time: '10:00 AM',
-          customer: {
-            name: 'Sarah Johnson',
-            email: 'sarah@example.com',
-          },
-          status: 'confirmed',
-          depositPaid: true,
-        },
-        {
-          id: 'booking_2',
-          service: {
-            name: 'Lash Lift & Tint',
-            price: '$120.00',
-          },
-          date: '2024-02-14',
-          time: '2:00 PM',
-          customer: {
-            name: 'Emily Davis',
-            email: 'emily@example.com',
-          },
-          status: 'pending',
-          depositPaid: false,
-        },
-        {
-          id: 'booking_3',
-          service: {
-            name: 'Deep Conditioning Treatment',
-            price: '$85.00',
-          },
-          date: '2024-02-13',
-          time: '11:00 AM',
-          customer: {
-            name: 'Jessica Wilson',
-            email: 'jessica@example.com',
-          },
-          status: 'completed',
-          depositPaid: true,
-        },
-      ];
+      const stats: DashboardStats = statsResponse.data;
+      const recentBookings: RecentBooking[] = bookingsResponse.data;
+      const recentOrders: RecentOrder[] = ordersResponse.data;
 
-      const mockRecentOrders: RecentOrder[] = [
-        {
-          id: 'order_1',
-          status: 'PAID',
-          totalCents: 24999,
-          createdAt: '2024-02-10T15:30:00Z',
-          customer: {
-            email: 'sarah@example.com',
-            firstName: 'Sarah',
-            lastName: 'Johnson',
-          },
-          items: [
-            {
-              productName: '16IN LOOSE WAVE Bundle - Natural Black',
-              quantity: 3,
-            },
-          ],
-        },
-        {
-          id: 'order_2',
-          status: 'SHIPPED',
-          totalCents: 4500,
-          createdAt: '2024-02-09T09:15:00Z',
-          customer: {
-            email: 'emily@example.com',
+      setStats(stats);
+      setRecentBookings(recentBookings);
+      setRecentOrders(recentOrders);
             firstName: 'Emily',
             lastName: 'Davis',
           },
