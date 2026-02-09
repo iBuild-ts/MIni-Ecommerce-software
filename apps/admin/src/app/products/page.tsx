@@ -21,15 +21,39 @@ export default function ProductsPage() {
   useEffect(() => {
     const fetchProducts = async () => {
       setIsLoading(true);
+      console.log('🔍 Fetching products from:', API_URL);
       try {
         const response = await fetch(`${API_URL}/api/products`);
+        console.log('📡 Response status:', response.status);
+        console.log('📡 Response ok:', response.ok);
+        
         if (response.ok) {
           const data = await response.json();
-          // Use only API products - no hardcoded demo products
-          setProducts(data.products || []);
+          console.log('📦 Raw API Response:', data);
+          console.log('📦 Products array:', data.products);
+          console.log('📦 Data type:', typeof data);
+          console.log('📦 Has products property:', 'products' in data);
+          
+          // Handle different response formats
+          if (data.products) {
+            console.log('✅ Using data.products, count:', data.products.length);
+            setProducts(data.products);
+          } else if (data.data) {
+            console.log('✅ Using data.data, count:', data.data.length);
+            setProducts(data.data);
+          } else if (Array.isArray(data)) {
+            console.log('✅ Using data as array, count:', data.length);
+            setProducts(data);
+          } else {
+            console.error('❌ Unexpected API response format:', data);
+            setProducts([]);
+          }
+        } else {
+          console.error('❌ API Response not ok:', response.status, response.statusText);
+          setProducts([]);
         }
       } catch (error) {
-        console.error('Failed to fetch products:', error);
+        console.error('❌ Failed to fetch products:', error);
         // Show empty state if API fails
         setProducts([]);
       } finally {
