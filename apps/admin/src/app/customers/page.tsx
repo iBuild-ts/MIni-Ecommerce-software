@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { Search, Plus, Mail, Phone, ShoppingBag, Calendar, MoreVertical } from 'lucide-react';
-import { Button, Badge, formatPrice } from '@/components/ui/button';
+import { Button, formatPrice } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 const demoCustomers = [
   { id: '1', name: 'Sarah Johnson', email: 'sarah@email.com', phone: '+1 555-0101', orders: 12, totalSpent: 45999, tags: ['VIP', 'Repeat'], lastOrder: '2024-01-15' },

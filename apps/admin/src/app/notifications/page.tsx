@@ -16,8 +16,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNotifications } from '@/hooks/use-notifications';
-import { useNotificationContext } from '@/hooks/use-notifications';
-import { EmailTest } from '@/components/notifications/notification-toast';
+import { useNotificationContext, EmailTest } from '@/components/notifications/notification-toast';
 
 interface NotificationTemplate {
   id: string;
@@ -127,17 +126,20 @@ export default function NotificationsPage() {
       if (response.ok) {
         addNotification({
           type: 'success',
+          title: 'Email Sent',
           message: `${template.name} sent successfully to ${testEmail}`,
         });
       } else {
         addNotification({
           type: 'error',
+          title: 'Email Failed',
           message: `Failed to send ${template.name}: ${result.error}`,
         });
       }
     } catch (error) {
       addNotification({
         type: 'error',
+        title: 'Network Error',
         message: `Network error sending ${template.name}`,
       });
     }

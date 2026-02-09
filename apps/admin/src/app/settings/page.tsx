@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { Save, Store, Mail, DollarSign, Bell, Shield, Palette, Globe, CreditCard } from 'lucide-react';
-import { Button, Input } from '@/components/ui/button';
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input';
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState('general');

@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { Search, Plus, Mail, Phone, Tag, Calendar, ArrowRight, UserPlus } from 'lucide-react';
-import { Button, Badge } from '@/components/ui/button';
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge';
 
 const demoLeads = [
   { id: '1', name: 'Jennifer Lopez', email: 'jennifer@email.com', phone: '+1 555-0201', source: 'website', status: 'new', tags: ['interested-lashes'], createdAt: '2024-01-15' },

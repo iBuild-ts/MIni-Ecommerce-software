@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Save, Eye, Upload, X } from 'lucide-react';
-import { Button, Input } from '@/components/ui/button';
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input';
 
 export default function NewProductPage() {
   const router = useRouter();

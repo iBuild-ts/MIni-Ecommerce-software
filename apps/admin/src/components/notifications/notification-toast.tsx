@@ -1,3 +1,5 @@
+'use client';
+
 import { createContext, useContext, useState, ReactNode } from 'react';
 
 export interface NotificationContextType {
@@ -24,4 +26,8 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       {children}
     </NotificationContext.Provider>
   );
+}
+
+export function EmailTest({ email }: { email: string }) {
+  return <div>Email Test Component - {email}</div>;
 }

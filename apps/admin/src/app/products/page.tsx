@@ -4,13 +4,14 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Plus, Search, Edit, Trash2, Eye, Copy, Package } from 'lucide-react';
-import { Button, Badge, formatPrice } from '@/components/ui/button';
+import { Button, formatPrice } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { useRouter } from 'next/navigation';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
 export default function ProductsPage() {
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
@@ -62,7 +63,7 @@ export default function ProductsPage() {
     // Open product in new tab on frontend
     const product = products.find((p: any) => p.id === productId);
     if (product) {
-      window.open(`http://localhost:3000/products/${product.slug}`, '_blank');
+      window.open(`http://localhost:3000/products/${product.slug || product.id}`, '_blank');
     }
   };
 
