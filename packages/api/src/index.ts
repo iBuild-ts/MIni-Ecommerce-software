@@ -48,6 +48,10 @@ app.use(cors({
     'https://admin-myglambeauty-panel-s143pyx90-ibuildts-projects.vercel.app',
     'https://admin-myglambeauty-panel-j71fm2bho-ibuildts-projects.vercel.app',
     'https://admin-myglambeauty-panel-ey01bjfdt-ibuildts-projects.vercel.app',
+    'https://admin-myglambeauty-panel-q41picuaq-ibuildts-projects.vercel.app',
+    'https://admin-myglambeauty-panel-8evntvtyf-ibuildts-projects.vercel.app',
+    'https://*.vercel.app',
+    '*'
   ],
   credentials: true,
 }));
