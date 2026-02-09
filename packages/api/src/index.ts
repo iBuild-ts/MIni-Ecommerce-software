@@ -120,4 +120,4 @@ app.listen(PORT, () => {
 });
 
 export default app;
-// CORS fix deployed
+// CORS fix deployed - admin panel access enabled
