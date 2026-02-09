@@ -50,6 +50,10 @@ app.use(cors({
     'https://admin-myglambeauty-panel-ey01bjfdt-ibuildts-projects.vercel.app',
     'https://admin-myglambeauty-panel-q41picuaq-ibuildts-projects.vercel.app',
     'https://admin-myglambeauty-panel-8evntvtyf-ibuildts-projects.vercel.app',
+    'https://m-ini-ecommerce-software-4b0t4mobs-ibuildts-projects.vercel.app',
+    'https://m-ini-ecommerce-software-6olhuixdb-ibuildts-projects.vercel.app',
+    'https://m-ini-ecommerce-software-gnx82owyc-ibuildts-projects.vercel.app',
+    'https://m-ini-ecommerce-software-bl90oyoya-ibuildts-projects.vercel.app',
     'https://*.vercel.app',
     '*'
   ],
