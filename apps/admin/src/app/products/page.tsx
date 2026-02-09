@@ -8,7 +8,7 @@ import { Button, formatPrice } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useRouter } from 'next/navigation';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+const API_URL = 'https://mini-ecommerce-software.onrender.com/api';
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<any[]>([]);
