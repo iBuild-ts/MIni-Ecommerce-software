@@ -8,7 +8,7 @@ import { Button, formatPrice } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useRouter } from 'next/navigation';
 
-const API_URL = 'https://mini-ecommerce-software.onrender.com/api';
+const API_URL = 'https://mini-ecommerce-software.onrender.com';
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<any[]>([]);

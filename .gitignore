@@ -37,3 +37,5 @@ packages/db/prisma/*.db-journal
 
 # Misc
 *.tsbuildinfo
+.vercel
+.env*.local

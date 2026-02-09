@@ -41,6 +41,13 @@ app.use(cors({
     'https://m-ini-ecommerce-software-ibotfkfen-ibuildts-projects.vercel.app',
     'https://m-ini-ecommerce-software-e5lllxdga-ibuildts-projects.vercel.app',
     'https://m-ini-ecommerce-software-ibotfkfen-ibuildts-projects.vercel.app',
+    'https://admin-myglambeauty-panel.vercel.app',
+    'https://admin-myglambeauty-panel-3l09198gn-ibuildts-projects.vercel.app',
+    'https://admin-myglambeauty-panel-50iri2fe1-ibuildts-projects.vercel.app',
+    'https://admin-myglambeauty-panel-5479sq895-ibuildts-projects.vercel.app',
+    'https://admin-myglambeauty-panel-s143pyx90-ibuildts-projects.vercel.app',
+    'https://admin-myglambeauty-panel-j71fm2bho-ibuildts-projects.vercel.app',
+    'https://admin-myglambeauty-panel-ey01bjfdt-ibuildts-projects.vercel.app',
   ],
   credentials: true,
 }));
