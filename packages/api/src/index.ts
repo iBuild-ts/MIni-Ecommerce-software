@@ -120,3 +120,4 @@ app.listen(PORT, () => {
 });
 
 export default app;
+// CORS fix deployed
