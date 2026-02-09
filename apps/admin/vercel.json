@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "buildCommand": "pnpm run build",
+  "buildCommand": "npm run build",
   "outputDirectory": ".next",
-  "installCommand": "pnpm install",
+  "installCommand": "npm install",
   "framework": "nextjs",
   "env": {
     "NEXT_PUBLIC_API_URL": "https://mini-ecommerce-software.onrender.com/api"
