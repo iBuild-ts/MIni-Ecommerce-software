@@ -162,10 +162,10 @@ export default function HomePage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
             {[
-              { icon: Truck, title: 'Free Shipping', desc: 'On orders over $50' },
+              { icon: Truck, title: 'Free Shipping', desc: 'On orders over $300' },
               { icon: Shield, title: 'Quality Guaranteed', desc: 'Premium materials only' },
               { icon: Clock, title: 'Fast Delivery', desc: '2-3 business days' },
-              { icon: Heart, title: 'Easy Returns', desc: '30-day return policy' },
+              { icon: Heart, title: 'Customer Satisfaction', desc: 'Your happiness is our priority' },
             ].map((feature, i) => (
               <motion.div
                 key={feature.title}
