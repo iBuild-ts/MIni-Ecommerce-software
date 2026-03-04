@@ -93,7 +93,7 @@ export default function HomePage() {
                 <span className="gradient-text block">Glam Game</span>
               </h1>
               <p className="text-lg text-gray-600 mb-8 max-w-lg">
-                Discover our premium collection of handcrafted lashes designed for the modern queen. 
+                Discover our premium collection of Frontal, hair extension, lashes designed for the modern queen. 
                 Luxury beauty that makes you feel like royalty.
               </p>
               <div className="flex flex-wrap gap-4">
