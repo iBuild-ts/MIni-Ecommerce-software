@@ -128,4 +128,4 @@ app.listen(PORT, () => {
 });
 
 export default app;
-// CORS fix deployed - admin panel access enabled
+// API deployed with CORS fixes for storefront
