@@ -413,7 +413,7 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
             <div className="grid grid-cols-3 gap-4 p-4 bg-gray-50 rounded-2xl">
               <div className="text-center">
                 <Truck className="h-6 w-6 mx-auto text-brand-500 mb-2" />
-                <p className="text-xs text-gray-600">Free Shipping<br />Over $50</p>
+                <p className="text-xs text-gray-600">Free Shipping<br />Over $300</p>
               </div>
               <div className="text-center">
                 <Shield className="h-6 w-6 mx-auto text-brand-500 mb-2" />

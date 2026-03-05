@@ -206,9 +206,9 @@ export default function CartPage() {
                     )}
                   </span>
                 </div>
-                {subtotal < 5000 && (
+                {subtotal < 30000 && (
                   <p className="text-xs text-gray-400">
-                    Add {formatPrice(5000 - subtotal)} more for free shipping!
+                    Add {formatPrice(30000 - subtotal)} more for free shipping!
                   </p>
                 )}
                 <div className="border-t border-gray-100 pt-3">
