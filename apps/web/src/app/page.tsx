@@ -83,7 +83,7 @@ export default function HomePage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="order-2 lg:order-1 text-center lg:text-left"
+              className="order-1 lg:order-1 text-center lg:text-left"
             >
               <span className="inline-flex items-center gap-2 px-4 py-2 bg-brand-100 text-brand-700 rounded-full text-sm font-medium mb-4 lg:mb-6">
                 <Sparkles className="h-4 w-4" />
@@ -131,7 +131,7 @@ export default function HomePage() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="relative"
+              className="relative order-2 lg:order-2"
             >
               <div className="relative aspect-square rounded-3xl overflow-hidden shadow-2xl">
                 <Image
