@@ -78,25 +78,26 @@ export default function HomePage() {
         </div>
 
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
+              className="order-2 lg:order-1 text-center lg:text-left"
             >
-              <span className="inline-flex items-center gap-2 px-4 py-2 bg-brand-100 text-brand-700 rounded-full text-sm font-medium mb-6">
+              <span className="inline-flex items-center gap-2 px-4 py-2 bg-brand-100 text-brand-700 rounded-full text-sm font-medium mb-4 lg:mb-6">
                 <Sparkles className="h-4 w-4" />
                 Luxury Handmade Lashes
               </span>
-              <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+              <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 mb-4 lg:mb-6 leading-tight">
                 Elevate Your
                 <span className="gradient-text block">Glam Game</span>
               </h1>
-              <p className="text-lg text-gray-600 mb-8 max-w-lg">
+              <p className="text-base sm:text-lg lg:text-xl text-gray-600 mb-6 lg:mb-8 max-w-lg">
                 Discover our premium collection of Frontal, hair extension, lashes designed for the modern queen. 
                 Luxury beauty that makes you feel like royalty.
               </p>
-              <div className="flex flex-wrap gap-4">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start">
                 <Link href="/products">
                   <Button size="lg" className="group">
                     Shop Collections

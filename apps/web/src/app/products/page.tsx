@@ -133,15 +133,15 @@ export default function ProductsPage() {
           </div>
 
           {/* Main Category Tabs */}
-          <div className="flex gap-2 overflow-x-auto pb-2 lg:pb-0">
+          <div className="flex flex-col sm:flex-row gap-2 mb-6 overflow-x-auto pb-2">
             {mainCategories.map((category) => (
               <button
                 key={category}
                 onClick={() => setSelectedCategory(category)}
-                className={`px-6 py-3 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+                className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors flex-shrink-0 ${
                   selectedCategory === category
-                    ? 'bg-brand-500 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? 'bg-pink-500 text-white'
+                    : 'bg-pink-50 text-pink-700 hover:bg-pink-100'
                 }`}
               >
                 {category}
@@ -159,7 +159,7 @@ export default function ProductsPage() {
                 <button
                   key={cat}
                   onClick={() => setSelectedHairCategory(cat)}
-                  className={`px-5 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+                  className={`px-5 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors flex-shrink-0 ${
                     selectedHairCategory === cat
                       ? 'bg-pink-500 text-white'
                       : 'bg-pink-50 text-pink-700 hover:bg-pink-100'
@@ -179,7 +179,7 @@ export default function ProductsPage() {
 
         {/* Product Grid */}
         {products.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
             {products.map((product, i) => (
               <motion.div
                 key={product.id}
