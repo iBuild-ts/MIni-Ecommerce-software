@@ -421,7 +421,7 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
               </div>
               <div className="text-center">
                 <RotateCcw className="h-6 w-6 mx-auto text-brand-500 mb-2" />
-                <p className="text-xs text-gray-600">30-Day<br />Returns</p>
+                <p className="text-xs text-gray-600">Customer<br />Satisfaction</p>
               </div>
             </div>
           </div>
