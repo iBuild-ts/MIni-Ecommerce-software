@@ -54,8 +54,9 @@ app.use(cors({
     'https://m-ini-ecommerce-software-6olhuixdb-ibuildts-projects.vercel.app',
     'https://m-ini-ecommerce-software-gnx82owyc-ibuildts-projects.vercel.app',
     'https://m-ini-ecommerce-software-bl90oyoya-ibuildts-projects.vercel.app',
-    'https://m-ini-ecommerce-software-15qns4855-ibuildts-projects.vercel.app',
     'https://m-ini-ecommerce-software-icn26ol06-ibuildts-projects.vercel.app',
+    'https://m-ini-ecommerce-software-83f72njh0-ibuildts-projects.vercel.app',
+    'https://m-ini-ecommerce-software-i6e75fmbs-ibuildts-projects.vercel.app',
     'https://*.vercel.app',
     '*'
   ],
