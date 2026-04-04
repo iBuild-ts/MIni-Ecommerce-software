@@ -12,4 +12,7 @@ router.post('/full', bookingPaymentController.createFullPayment.bind(bookingPaym
 // Handle payment success (webhook)
 router.post('/success', bookingPaymentController.handlePaymentSuccess.bind(bookingPaymentController));
 
+// Handle Stripe webhooks
+router.post('/webhook', bookingPaymentController.handleStripeWebhook.bind(bookingPaymentController));
+
 export default router;

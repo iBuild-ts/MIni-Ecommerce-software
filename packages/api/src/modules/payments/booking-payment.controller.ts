@@ -1,18 +1,22 @@
 import { Request, Response, NextFunction } from 'express';
-import { mockBookingPaymentService } from './booking-payment.service.mock';
+import { StripePaymentService } from './stripe-payment.service';
 import { emailService } from '../notifications/email.service';
 
 export class BookingPaymentController {
+  private stripePaymentService: StripePaymentService;
+
+  constructor() {
+    this.stripePaymentService = new StripePaymentService();
+  }
+
   async createDepositPayment(req: Request, res: Response, next: NextFunction) {
     try {
       const { bookingId, customerEmail, customerName, serviceName, depositAmount } = req.body;
       
-      const result = await mockBookingPaymentService.createDepositPayment({
-        bookingId,
+      const result = await this.stripePaymentService.createPaymentIntent({
+        amount: depositAmount,
         customerEmail,
-        customerName,
-        depositAmount,
-        serviceName,
+        description: `Deposit payment for ${serviceName} - Booking: ${bookingId}`,
       });
       
       res.status(201).json(result);
@@ -25,12 +29,10 @@ export class BookingPaymentController {
     try {
       const { bookingId, customerEmail, customerName, serviceName, fullAmount } = req.body;
       
-      const result = await mockBookingPaymentService.createFullPayment({
-        bookingId,
+      const result = await this.stripePaymentService.createPaymentIntent({
+        amount: fullAmount,
         customerEmail,
-        customerName,
-        serviceName,
-        fullAmount,
+        description: `Full payment for ${serviceName} - Booking: ${bookingId}`,
       });
       
       res.status(201).json(result);
@@ -41,19 +43,19 @@ export class BookingPaymentController {
 
   async handlePaymentSuccess(req: Request, res: Response, next: NextFunction) {
     try {
-      const { paymentIntentId } = req.body;
+      const { paymentIntentId, customerEmail, customerName, depositAmount, bookingId, serviceName } = req.body;
       
-      const result = await mockBookingPaymentService.handleDepositPaymentSuccess(paymentIntentId);
+      const result = await this.stripePaymentService.confirmPayment(paymentIntentId);
       
       // Send payment confirmation email
-      if (result.success && result.customerEmail) {
+      if (result.success && customerEmail) {
         try {
           await emailService.sendPaymentConfirmation({
-            customerName: result.customerName || 'Valued Customer',
-            customerEmail: result.customerEmail,
-            amount: result.amount || 0,
-            bookingId: result.bookingId || 'Unknown',
-            serviceName: result.serviceName || 'Beauty Service',
+            customerName: customerName || 'Valued Customer',
+            customerEmail,
+            amount: depositAmount || 0,
+            bookingId,
+            serviceName: serviceName || 'Beauty Service',
           });
         } catch (emailError) {
           console.error('Failed to send payment confirmation email:', emailError);
@@ -61,9 +63,32 @@ export class BookingPaymentController {
         }
       }
       
-      res.json(result);
+      res.status(200).json(result);
     } catch (error) {
       next(error);
+    }
+  }
+
+  async handleStripeWebhook(req: Request, res: Response, next: NextFunction) {
+    try {
+      const sig = req.headers['stripe-signature'];
+      const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+      
+      if (!sig || !webhookSecret) {
+        return res.status(400).json({ error: 'Webhook signature missing' });
+      }
+
+      const event = require('stripe')(req.body, sig);
+      const result = await this.stripePaymentService.handleWebhook(event);
+      
+      if (result.error) {
+        return res.status(400).json({ error: result.error });
+      }
+      
+      res.status(200).json({ received: true });
+    } catch (error) {
+      console.error('Webhook error:', error);
+      res.status(500).json({ error: 'Webhook processing failed' });
     }
   }
 }
