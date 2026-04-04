@@ -1,5 +1,5 @@
 import Stripe from 'stripe';
-import { env } from '../config/env';
+import { env } from '../../config/env';
 
 const stripe = new Stripe(env.STRIPE_SECRET_KEY, {
   apiVersion: '2023-10-16',
@@ -23,10 +23,9 @@ export class StripePaymentService {
       const paymentIntent = await stripe.paymentIntents.create({
         amount: Math.round(params.amount * 100), // Convert to cents
         currency: params.currency || 'usd',
-        customer_email: params.customerEmail,
         description: params.description,
         automatic_payment_methods: {
-          enabled: ['card'],
+          enabled: true,
         },
         metadata: {
           customerEmail: params.customerEmail || '',

@@ -1,12 +1,17 @@
 import { Request, Response, NextFunction } from 'express';
 import { StripePaymentService } from './stripe-payment.service';
 import { emailService } from '../notifications/email.service';
+import Stripe from 'stripe';
 
 export class BookingPaymentController {
   private stripePaymentService: StripePaymentService;
+  private stripe: Stripe;
 
   constructor() {
     this.stripePaymentService = new StripePaymentService();
+    this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+      apiVersion: '2023-10-16',
+    });
   }
 
   async createDepositPayment(req: Request, res: Response, next: NextFunction) {
@@ -78,7 +83,7 @@ export class BookingPaymentController {
         return res.status(400).json({ error: 'Webhook signature missing' });
       }
 
-      const event = require('stripe')(req.body, sig);
+      const event = this.stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
       const result = await this.stripePaymentService.handleWebhook(event);
       
       if (result.error) {
