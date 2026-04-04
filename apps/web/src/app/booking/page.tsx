@@ -113,7 +113,7 @@ const services = [
     duration: '1 hour 30 minutes',
     price: '$100.00',
     category: 'makeup',
-    description: 'This is a single person fee and does not reflect groups. Groups 5 or less $95/each Groups 6-10 $90/each Please note there\'s a travel fee of $40 (Miami) $50(Broward) added to this service. Prices vary if out of state travel is required ...'
+    description: '$100 bridesmaids or mom of bride. Bride is $150. Travel in Miami is $150 Broward $200 palm beach $250.'
   },
 
   // PONYTAILS
