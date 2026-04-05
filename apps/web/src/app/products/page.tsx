@@ -65,13 +65,33 @@ export default function ProductsPage() {
         console.error('❌ Failed to fetch products:', error);
         console.error('Error details:', error);
         
-        // Don't set empty array immediately - try to continue with existing products
-        // Only set empty if we have no products at all
-        if (allProducts.length === 0) {
-          setAllProducts([]);
-          setProducts([]);
-        }
-        // If we have some products, keep them even if API fails
+        // Add fallback products for debugging
+        const fallbackProducts = [
+          {
+            id: 'test-1',
+            name: 'Darling Plush Cluster Lashes',
+            slug: 'darling-plush-cluster-lashes',
+            priceCents: 1199,
+            mainImageUrl: 'https://image2url.com/r2/default/images/1770666436078-40ca0880-3194-40b8-b997-a636ff55a178.jpg',
+            tags: ['Lashes'],
+            category: 'Lashes',
+            variants: '',
+          },
+          {
+            id: 'test-2', 
+            name: 'Soft Whispers Cluster Lashes',
+            slug: 'soft-whispers-cluster-lashes',
+            priceCents: 1199,
+            mainImageUrl: 'https://image2url.com/r2/default/images/1770665944281-37ec18fe-3a3d-45c2-b2eb-1c104edc8825.jpg',
+            tags: ['Lashes'],
+            category: 'Lashes',
+            variants: '',
+          }
+        ];
+        
+        console.log('🔄 Using fallback products:', fallbackProducts);
+        setAllProducts(fallbackProducts);
+        setProducts(fallbackProducts);
       } finally {
         setIsLoading(false);
       }
