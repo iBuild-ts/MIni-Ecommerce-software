@@ -34,10 +34,10 @@ export default function ProductsPage() {
 
   // Fetch products from API on mount
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchProducts = async (retryCount = 0) => {
       setIsLoading(true);
       try {
-        console.log('🔍 Fetching products from API...');
+        console.log('🔍 Fetching products from API...', `Attempt ${retryCount + 1}`);
         const response = await api.products.getAll({ limit: 200 });
         console.log('✅ API Response:', response);
         
@@ -63,15 +63,40 @@ export default function ProductsPage() {
         setProducts(apiProducts);
       } catch (error) {
         console.error('❌ Failed to fetch products:', error);
-        // Show empty state when API fails
-        setAllProducts([]);
-        setProducts([]);
+        console.error('Error details:', error);
+        
+        // Don't set empty array immediately - try to continue with existing products
+        // Only set empty if we have no products at all
+        if (allProducts.length === 0) {
+          setAllProducts([]);
+          setProducts([]);
+        }
+        // If we have some products, keep them even if API fails
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchProducts();
+    // Initial fetch with retry
+    const fetchWithRetry = async () => {
+      for (let i = 0; i < 3; i++) {
+        try {
+          await fetchProducts(i);
+          return; // Success, exit retry loop
+        } catch (error) {
+          console.error(`Retry ${i + 1} failed:`, error);
+          if (i === 2) {
+            // Last retry failed, but don't clear products if we have them
+            await fetchProducts(i);
+            return;
+          }
+          // Wait before retry
+          await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
+        }
+      }
+    };
+
+    fetchWithRetry();
   }, []);
 
   // Filter products based on category and search
