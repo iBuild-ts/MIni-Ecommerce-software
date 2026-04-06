@@ -38,10 +38,14 @@ export default function ProductsPage() {
       setIsLoading(true);
       try {
         console.log('🔍 Fetching products from API...', `Attempt ${retryCount + 1}`);
-        const response = await api.products.getAll({ limit: 200 });
-        console.log('✅ API Response:', response);
         
-        const apiProducts = (response.products || []).map(product => {
+        // Direct fetch to bypass any API wrapper issues
+        const response = await fetch('https://mini-ecommerce-software.onrender.com/api/products?limit=200');
+        const data = await response.json();
+        
+        console.log('✅ API Response:', data);
+        
+        const apiProducts = (data.products || []).map(product => {
           const tags = product.tags || [];
           const variantsTag = tags.find((t) => t.startsWith('variants:'));
           const variants = variantsTag ? variantsTag.slice('variants:'.length) : '';
