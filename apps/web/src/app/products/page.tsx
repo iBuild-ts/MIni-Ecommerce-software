@@ -47,7 +47,7 @@ export default function ProductsPage() {
         
         const apiProducts = (data.products || []).map((product: any) => {
           const tags = product.tags || [];
-          const variantsTag = tags.find((t) => t.startsWith('variants:'));
+          const variantsTag = tags.find((t: string) => t.startsWith('variants:'));
           const variants = variantsTag ? variantsTag.slice('variants:'.length) : '';
 
           return ({
