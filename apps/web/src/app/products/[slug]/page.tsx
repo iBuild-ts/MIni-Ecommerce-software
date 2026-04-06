@@ -115,26 +115,28 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await api.products.getBySlug(params.slug);
+        // Direct API call to bypass wrapper issues
+        const response = await fetch(`https://mini-ecommerce-software.onrender.com/api/products/slug/${params.slug}`);
+        const productData = await response.json();
         const transformedProduct = {
-          id: response.id,
-          name: response.name,
-          slug: response.slug,
-          description: response.description || 'Beautiful product from our collection',
-          priceCents: response.priceCents,
-          compareAtPriceCents: (response as any).compareAtPriceCents || null,
-          mainImageUrl: response.mainImageUrl || 'https://images.unsplash.com/photo-1583001931096-959e9a1a6223?w=800',
-          galleryImages: (response as any).galleryImages?.map((img: any) => ({
+          id: productData.id,
+          name: productData.name,
+          slug: productData.slug,
+          description: productData.description || 'Beautiful product from our collection',
+          priceCents: productData.priceCents,
+          compareAtPriceCents: productData.compareAtPriceCents || null,
+          mainImageUrl: productData.mainImageUrl || 'https://images.unsplash.com/photo-1583001931096-959e9a1a6223?w=800',
+          galleryImages: productData.galleryImages?.map((img: any) => ({
             id: img.id,
             url: img.url,
             alt: img.alt || img.name || 'Product image'
           })) || [
-            { id: '1', url: response.mainImageUrl || 'https://images.unsplash.com/photo-1583001931096-959e9a1a6223?w=800', alt: response.name }
+            { id: '1', url: productData.mainImageUrl || 'https://images.unsplash.com/photo-1583001931096-959e9a1a6223?w=800', alt: productData.name }
           ],
-          tags: response.tags || [],
-          category: response.category || 'Uncategorized',
-          stock: response.stock || 0,
-          features: (response as any).features || [
+          tags: productData.tags || [],
+          category: productData.category || 'Uncategorized',
+          stock: productData.stock || 0,
+          features: productData.features || [
             'Premium quality materials',
             'Carefully crafted',
             'Beautiful design'
