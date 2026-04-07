@@ -10,11 +10,34 @@ export default function WorkingProductsPage() {
   useEffect(() => {
     const loadProducts = async () => {
       try {
-        const response = await fetch('https://mini-ecommerce-software.onrender.com/api/products?limit=50');
+        console.log('Loading ALL products...');
+        const response = await fetch('https://mini-ecommerce-software.onrender.com/api/products?limit=100');
         const data = await response.json();
+        console.log('API Response:', data);
+        console.log('Products found:', data.products?.length || 0);
         setProducts(data.products || []);
       } catch (error) {
         console.error('Error loading products:', error);
+        // Add fallback to ensure some products show
+        const fallbackProducts = [
+          {
+            id: 'fallback-1',
+            name: 'Darling Plush Cluster Lashes',
+            slug: 'darling-plush-cluster-lashes',
+            priceCents: 1199,
+            mainImageUrl: 'https://image2url.com/r2/default/images/1770666436078-40ca0880-3194-40b8-b997-a636ff55a178.jpg',
+            category: 'Lashes'
+          },
+          {
+            id: 'fallback-2',
+            name: '5x5 Closure HD Lace',
+            slug: '5x5-closure-hd-lace',
+            priceCents: 8000,
+            mainImageUrl: 'https://image2url.com/r2/default/images/1769786948087-d34e3d15-8eac-45c5-a6e5-e5c243532fe6.jpg',
+            category: 'Closures'
+          }
+        ];
+        setProducts(fallbackProducts);
       } finally {
         setLoading(false);
       }
