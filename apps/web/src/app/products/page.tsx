@@ -37,7 +37,7 @@ export default function ProductsPage() {
     const fetchProducts = async () => {
       setIsLoading(true);
       try {
-        const response = await api.products.getAll({ limit: 200 });
+        const response = await api.products.getAll();
         
         const apiProducts = (response.products || []).map(product => {
           const tags = product.tags || [];
