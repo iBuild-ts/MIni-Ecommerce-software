@@ -29,7 +29,7 @@ export default function CartPage() {
     
     try {
       // Create checkout with Stripe
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/orders/checkout`, {
+      const response = await fetch('https://mini-ecommerce-software.onrender.com/api/orders/checkout', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
