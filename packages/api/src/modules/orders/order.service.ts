@@ -18,11 +18,11 @@ interface CheckoutData {
 
 export class OrderService {
   async createCheckout(data: CheckoutData) {
-    // Simplified checkout - skip database operations for now
+    // Use Stripe with environment variable
     const subtotalCents = data.items.reduce((sum, item) => sum + (item.unitPriceCents || 0) * item.quantity, 0);
     const totalCents = subtotalCents;
 
-    // Create Stripe checkout session directly
+    // Create Stripe checkout session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: data.items.map((item) => ({
