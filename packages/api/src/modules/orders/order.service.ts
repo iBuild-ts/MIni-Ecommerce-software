@@ -80,4 +80,14 @@ export class OrderService {
     // Do nothing for now
     return null;
   }
+
+  async getByCustomerEmail(email: string) {
+    // Return empty for now
+    return { orders: [], total: 0 };
+  }
+
+  async handlePaymentSuccess(paymentIntentId: string) {
+    // Do nothing for now
+    return null;
+  }
 }
