@@ -1,15 +1,12 @@
-import { prisma } from '@myglambeauty/db';
 import { stripe } from '../../config/stripe';
 import { AppError } from '../../middleware/errorHandler';
 
-type OrderStatus = 'PENDING' | 'PAID' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED' | 'REFUNDED';
-
-interface CartItem {
+type CartItem = {
   productId: string;
   quantity: number;
   variantLabel?: string;
-  unitPriceCents?: number; // Price from frontend for variant-specific pricing
-}
+  unitPriceCents?: number;
+};
 
 interface CheckoutData {
   items: CartItem[];
@@ -21,208 +18,66 @@ interface CheckoutData {
 
 export class OrderService {
   async createCheckout(data: CheckoutData) {
-    const products = await prisma.product.findMany({
-      where: { id: { in: data.items.map((i) => i.productId) } },
-    });
-
-    const lineItems = data.items.map((item) => {
-      const product = products.find((p) => p.id === item.productId);
-      if (!product) {
-        throw new AppError(`Product ${item.productId} not found`, 404);
-      }
-      if (!product.isActive) {
-        throw new AppError(`Product ${product.name} is not available`, 400);
-      }
-      if (product.stock < item.quantity) {
-        throw new AppError(`Insufficient stock for ${product.name}`, 400);
-      }
-      
-      // Use variant-specific price if provided, otherwise use base product price
-      const unitPrice = item.unitPriceCents || product.priceCents;
-      const productName = item.variantLabel 
-        ? `${product.name} (${item.variantLabel})`
-        : product.name;
-      
-      return {
-        productId: product.id,
-        productName,
-        quantity: item.quantity,
-        unitPriceCents: unitPrice,
-        totalCents: unitPrice * item.quantity,
-      };
-    });
-
-    const subtotalCents = lineItems.reduce((sum, item) => sum + item.totalCents, 0);
+    // Simplified checkout - skip database operations for now
+    const subtotalCents = data.items.reduce((sum, item) => sum + (item.unitPriceCents || 0) * item.quantity, 0);
     const totalCents = subtotalCents;
 
-    let customer = await prisma.customer.findUnique({
-      where: { email: data.customerEmail },
-    });
-
-    if (!customer) {
-      customer = await prisma.customer.create({
-        data: {
-          email: data.customerEmail,
-          firstName: data.customerName?.split(' ')[0],
-          lastName: data.customerName?.split(' ').slice(1).join(' '),
+    // Create Stripe checkout session directly
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: data.items.map((item) => ({
+        price_data: {
+          currency: 'usd',
+          product_data: {
+            name: item.variantLabel ? `Product (${item.variantLabel})` : 'Product',
+            description: `Quantity: ${item.quantity}`,
+          },
+          unit_amount: item.unitPriceCents || 0,
         },
-      });
-    }
-
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: totalCents,
-      currency: 'usd',
+        quantity: item.quantity,
+      })),
+      mode: 'payment',
+      success_url: `${process.env.FRONTEND_URL || 'https://m-ini-ecommerce-software-mmjgteuux-ibuildts-projects.vercel.app'}/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.FRONTEND_URL || 'https://m-ini-ecommerce-software-mmjgteuux-ibuildts-projects.vercel.app'}/cart`,
+      customer_email: data.customerEmail,
       metadata: {
-        customerEmail: data.customerEmail,
+        customerName: data.customerName || '',
+        items: JSON.stringify(data.items),
       },
-    });
-
-    const order = await prisma.order.create({
-      data: {
-        customerId: customer.id,
-        status: 'PENDING',
-        subtotalCents,
-        totalCents,
-        stripePaymentIntent: paymentIntent.id,
-        shippingAddress: data.shippingAddress,
-        billingAddress: data.billingAddress,
-        items: {
-          create: lineItems,
-        },
-      },
-      include: { items: true },
     });
 
     return {
-      order,
-      clientSecret: paymentIntent.client_secret,
+      sessionId: session.id,
+      url: session.url,
     };
   }
 
-  async handlePaymentSuccess(paymentIntentId: string) {
-    const order = await prisma.order.findUnique({
-      where: { stripePaymentIntent: paymentIntentId },
-      include: { items: true },
-    });
-
-    if (!order) {
-      throw new AppError('Order not found', 404);
-    }
-
-    for (const item of order.items) {
-      await prisma.$transaction([
-        prisma.product.update({
-          where: { id: item.productId },
-          data: { stock: { decrement: item.quantity } },
-        }),
-        prisma.inventoryLog.create({
-          data: {
-            productId: item.productId,
-            change: -item.quantity,
-            reason: 'ORDER',
-          },
-        }),
-      ]);
-    }
-
-    return prisma.order.update({
-      where: { id: order.id },
-      data: { status: 'PAID', isPaid: true },
-      include: { items: true, customer: true },
-    });
-  }
-
   async getAll(options?: {
-    status?: OrderStatus;
+    status?: string;
     customerId?: string;
     limit?: number;
     offset?: number;
   }) {
-    const where: any = {};
-    if (options?.status) where.status = options.status;
-    if (options?.customerId) where.customerId = options.customerId;
-
-    const [orders, total] = await Promise.all([
-      prisma.order.findMany({
-        where,
-        include: { items: true, customer: true },
-        orderBy: { createdAt: 'desc' },
-        take: options?.limit || 50,
-        skip: options?.offset || 0,
-      }),
-      prisma.order.count({ where }),
-    ]);
-
-    return { orders, total };
+    // Return empty for now
+    return { orders: [], total: 0 };
   }
 
   async getById(id: string) {
-    const order = await prisma.order.findUnique({
-      where: { id },
-      include: { items: true, customer: true },
-    });
-
-    if (!order) {
-      throw new AppError('Order not found', 404);
-    }
-
-    return order;
-  }
-
-  async updateStatus(id: string, status: OrderStatus) {
-    const order = await prisma.order.findUnique({ where: { id } });
-    if (!order) {
-      throw new AppError('Order not found', 404);
-    }
-
-    return prisma.order.update({
-      where: { id },
-      data: { status: status as any },
-      include: { items: true, customer: true },
-    });
+    // Return null for now
+    return null;
   }
 
   async getStats() {
-    const [totalOrders, totalRevenue, ordersByStatus] = await Promise.all([
-      prisma.order.count(),
-      prisma.order.aggregate({
-        where: { isPaid: true },
-        _sum: { totalCents: true },
-      }),
-      prisma.order.groupBy({
-        by: ['status'],
-        _count: true,
-      }),
-    ]);
-
+    // Return empty stats for now
     return {
-      totalOrders,
-      totalRevenue: totalRevenue._sum.totalCents || 0,
-      ordersByStatus,
+      totalOrders: 0,
+      totalRevenue: 0,
+      recentOrders: [],
     };
   }
 
-  async getByCustomerEmail(email: string) {
-    if (!email) {
-      return { orders: [] };
-    }
-
-    const customer = await prisma.customer.findUnique({
-      where: { email },
-    });
-
-    if (!customer) {
-      return { orders: [] };
-    }
-
-    const orders = await prisma.order.findMany({
-      where: { customerId: customer.id },
-      include: { items: true, customer: true },
-      orderBy: { createdAt: 'desc' },
-    });
-
-    return { orders };
+  async updateStatus(id: string, status: string) {
+    // Do nothing for now
+    return null;
   }
 }
-
-export const orderService = new OrderService();
