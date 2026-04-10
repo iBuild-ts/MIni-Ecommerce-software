@@ -47,7 +47,7 @@ export class OrderService {
     });
 
     return {
-      sessionId: session.id,
+      clientSecret: session.id,
       url: session.url,
     };
   }
