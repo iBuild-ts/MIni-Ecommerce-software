@@ -1,7 +1,9 @@
 import { Request, Response } from 'express';
 import { stripe } from '../../config/stripe';
 import { env } from '../../config/env';
-import { orderService } from './order.service';
+import { OrderService } from './order.service';
+
+const orderService = new OrderService();
 
 export const handleStripeWebhook = async (req: Request, res: Response) => {
   const sig = req.headers['stripe-signature'] as string;

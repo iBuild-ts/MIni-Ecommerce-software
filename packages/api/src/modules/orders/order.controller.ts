@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { orderService } from './order.service';
+import { OrderService } from './order.service';
+
+const orderService = new OrderService();
 
 export class OrderController {
   async createCheckout(req: Request, res: Response, next: NextFunction) {
