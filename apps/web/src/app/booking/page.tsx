@@ -379,10 +379,32 @@ const categories = [
   { id: 'wigs', name: 'Wigs' }
 ];
 
-const timeSlots = [
-  '8:00 AM', '9:00 AM', '10:00 AM', '11:00 AM', '12:00 PM',
-  '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM'
+const allTimeSlots = [
+  '10:00 AM', '11:00 AM', '12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM'
 ];
+
+// Function to get available time slots based on selected date
+const getAvailableTimeSlots = (date: string) => {
+  if (!date) return allTimeSlots;
+  
+  const selectedDay = new Date(date).getDay(); // 0 = Sunday, 1 = Monday, etc.
+  
+  switch (selectedDay) {
+    case 0: // Sunday - Closed
+      return [];
+    case 1: // Monday - Thursday 3pm-7pm
+    case 2: // Tuesday
+    case 3: // Wednesday
+    case 4: // Thursday
+      return ['3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM'];
+    case 5: // Friday 3pm-8pm
+      return ['3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM'];
+    case 6: // Saturday 10am-8pm
+      return ['10:00 AM', '11:00 AM', '12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM'];
+    default:
+      return allTimeSlots;
+  }
+};
 
 export default function BookingPage() {
   const [step, setStep] = useState(1);
@@ -467,7 +489,7 @@ export default function BookingPage() {
               <p><strong>Service:</strong> {selectedService?.name}</p>
               <p><strong>Duration:</strong> {selectedService?.duration}</p>
               <p><strong>Price:</strong> {selectedService?.price}</p>
-              <p><strong>Date:</strong> {selectedDate}</p>
+              <p><strong>Date:</strong> {selectedDate ? new Date(selectedDate).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }) : ''}</p>
               <p><strong>Time:</strong> {selectedTime}</p>
             </div>
             {selectedService?.deposit && (
@@ -620,19 +642,26 @@ export default function BookingPage() {
                     Select Time
                   </label>
                   <div className="grid grid-cols-3 gap-2">
-                    {timeSlots.map((time) => (
-                      <button
-                        key={time}
-                        onClick={() => setSelectedTime(time)}
-                        className={`py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
-                          selectedTime === time
-                            ? 'bg-brand-500 text-white'
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        }`}
-                      >
-                        {time}
-                      </button>
-                    ))}
+                    {getAvailableTimeSlots(selectedDate).length > 0 ? (
+                      getAvailableTimeSlots(selectedDate).map((time) => (
+                        <button
+                          key={time}
+                          onClick={() => setSelectedTime(time)}
+                          className={`py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
+                            selectedTime === time
+                              ? 'bg-brand-500 text-white'
+                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          }`}
+                        >
+                          {time}
+                        </button>
+                      ))
+                    ) : (
+                      <div className="col-span-3 text-center py-4 text-gray-500">
+                        <AlertCircle className="h-5 w-5 inline mr-2" />
+                        Closed on Sundays. Please select another date.
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

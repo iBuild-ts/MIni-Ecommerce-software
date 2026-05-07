@@ -53,13 +53,13 @@ export function Footer() {
                 Home of luxury beauty and handmade lashes for Queen Princess. Elevate your glam with our premium collection.
               </p>
               <div className="flex space-x-4">
-                <a href="#" className="p-2 bg-gray-800 rounded-full hover:bg-brand-500 transition-colors">
+                <a href="https://instagram.com/myglambeautysupply" className="p-2 bg-gray-800 rounded-full hover:bg-brand-500 transition-colors">
                   <Instagram className="h-5 w-5" />
                 </a>
-                <a href="#" className="p-2 bg-gray-800 rounded-full hover:bg-brand-500 transition-colors">
+                <a href="https://facebook.com/myglambeautysupply" className="p-2 bg-gray-800 rounded-full hover:bg-brand-500 transition-colors">
                   <Facebook className="h-5 w-5" />
                 </a>
-                <a href="#" className="p-2 bg-gray-800 rounded-full hover:bg-brand-500 transition-colors">
+                <a href="https://twitter.com/myglambeautysupply" className="p-2 bg-gray-800 rounded-full hover:bg-brand-500 transition-colors">
                   <Twitter className="h-5 w-5" />
                 </a>
               </div>
@@ -95,15 +95,15 @@ export function Footer() {
               <ul className="space-y-3">
                 <li className="flex items-center gap-3 text-gray-400">
                   <Mail className="h-5 w-5 text-brand-400" />
-                  <span>hello@myglambeauty.com</span>
+                  <span>Myglambeauty@gmail.com</span>
                 </li>
                 <li className="flex items-center gap-3 text-gray-400">
                   <Phone className="h-5 w-5 text-brand-400" />
-                  <span>+1 (555) 123-4567</span>
+                  <span>786-985-6411</span>
                 </li>
                 <li className="flex items-start gap-3 text-gray-400">
                   <MapPin className="h-5 w-5 text-brand-400 flex-shrink-0" />
-                  <span>123 Beauty Lane<br />Los Angeles, CA 90001</span>
+                  <span>7900 NW 27th ave<br />Miami Florida 33147 FZ-3</span>
                 </li>
               </ul>
             </div>
