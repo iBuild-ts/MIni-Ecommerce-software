@@ -174,12 +174,12 @@ export default function TrackOrderPage() {
             Need help with something else?
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button variant="outline" asChild>
-              <a href="/contact">Contact Support</a>
-            </Button>
-            <Button variant="outline" asChild>
-              <a href="/faq">View FAQ</a>
-            </Button>
+            <a href="/contact">
+              <Button variant="outline">Contact Support</Button>
+            </a>
+            <a href="/faq">
+              <Button variant="outline">View FAQ</Button>
+            </a>
           </div>
         </motion.div>
       </div>
