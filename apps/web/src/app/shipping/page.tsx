@@ -1,4 +1,4 @@
-'use client';
+// Fixed Button component type error - Vercel deploy latest commit
 
 import { motion } from 'framer-motion';
 import { Truck, Package, Clock, Shield, Phone, Mail, MapPin } from 'lucide-react';
