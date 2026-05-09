@@ -212,9 +212,9 @@ export default function ShippingPage() {
             </div>
             
             <div className="mt-6">
-              <Button variant="secondary" asChild>
-                <a href="/contact">Contact Support</a>
-              </Button>
+              <a href="/contact">
+                <Button variant="secondary">Contact Support</Button>
+              </a>
             </div>
           </motion.div>
         </div>
