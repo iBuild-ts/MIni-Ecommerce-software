@@ -406,6 +406,14 @@ const getAvailableTimeSlots = (date: string) => {
   }
 };
 
+// Function to check if selected date and time are valid
+const isValidBookingTime = (date: string, time: string) => {
+  if (!date || !time) return false;
+  
+  const availableSlots = getAvailableTimeSlots(date);
+  return availableSlots.includes(time);
+};
+
 export default function BookingPage() {
   const [step, setStep] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -463,7 +471,7 @@ export default function BookingPage() {
 
   const canProceed = () => {
     if (step === 1) return selectedService !== null;
-    if (step === 2) return selectedDate && selectedTime;
+    if (step === 2) return selectedDate && selectedTime && isValidBookingTime(selectedDate, selectedTime);
     if (step === 3) return formData.name && formData.email && formData.agreeToTerms;
     return false;
   };
@@ -659,7 +667,7 @@ export default function BookingPage() {
                     ) : (
                       <div className="col-span-3 text-center py-4 text-gray-500">
                         <AlertCircle className="h-5 w-5 inline mr-2" />
-                        Closed on Sundays. Please select another date.
+                        {selectedDate ? 'Closed on this day. Please select another date.' : 'Please select a date first.'}
                       </div>
                     )}
                   </div>
