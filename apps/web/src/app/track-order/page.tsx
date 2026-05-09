@@ -1,3 +1,5 @@
+'use client';
+
 // Updated: ${new Date().toISOString()} - Fixed Button component
 
 import { useState } from 'react';
